@@ -1,0 +1,57 @@
+# On demand: fetch past NWS hydrograph (HML) forecasts and observations for
+# Virginia gauges from the Iowa Environmental Mesonet archive, for periods the
+# live archive missed. The CSVs come back as a workflow artifact.
+name: NWS HML backfill
+
+on:
+  workflow_dispatch:
+    inputs:
+      start:
+        description: "Start, e.g. 2026-09-01T00:00Z"
+        required: true
+      end:
+        description: "End, e.g. 2026-10-08T00:00Z"
+        required: true
+      stations:
+        description: "Space-separated NWS LIDs"
+        required: true
+        default: "BISM2 NCDV2 KPTV2 LWTV2 SWPV2 WAHV2 WASD2 WNDV2 YKTV2 SLIM2 CHBV2 MNPV2 FTMV2 NMDV2 NRSV2 JSFV2 ELZV2 LHNV2 HMNV2 BKNV2 NMCV2 LONV2 LRBV2 LTCV2 THAV2 NWRV2 BLYV2 EBRV2 NSWV2"
+      afos:
+        description: "Optional space-separated AFOS product ids to fetch as text too (e.g. RVFAKQ)"
+        required: false
+        default: ""
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Download
+        env:
+          STS: ${{ inputs.start }}
+          ETS: ${{ inputs.end }}
+          STATIONS: ${{ inputs.stations }}
+          AFOS: ${{ inputs.afos }}
+        run: |
+          mkdir -p out
+          base="https://mesonet.agron.iastate.edu/cgi-bin/request/hml.py"
+          echo "lid,kind,http,bytes,rows" > out/_summary.csv
+          for lid in $STATIONS; do
+            for kind in forecasts obs; do
+              f="out/${lid}_${kind}.csv"
+              code=$(curl -sS -m 300 --retry 3 -o "$f" -w "%{http_code}" \
+                "$base?station=$lid&kind=$kind&tz=UTC&sts=$STS&ets=$ETS&fmt=csv" || echo 000)
+              echo "$lid,$kind,$code,$(stat -c %s "$f" 2>/dev/null || echo 0),$(($(wc -l < "$f" 2>/dev/null || echo 1) - 1))" >> out/_summary.csv
+              sleep 2
+            done
+          done
+          for pil in $AFOS; do
+            curl -sS -m 300 --retry 3 -o "out/afos_${pil}.txt" \
+              "https://mesonet.agron.iastate.edu/cgi-bin/afos/retrieve.py?pil=$pil&sdate=${STS:0:10}&edate=${ETS:0:10}&limit=9999&fmt=text" || true
+          done
+          column -s, -t out/_summary.csv
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nws-hml
+          path: out/
