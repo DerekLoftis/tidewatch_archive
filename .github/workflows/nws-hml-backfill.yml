@@ -1,6 +1,7 @@
 # On demand: fetch past NWS hydrograph (HML) forecasts and observations for
 # Virginia gauges from the Iowa Environmental Mesonet archive, for periods the
-# live archive missed. The CSVs come back as a workflow artifact.
+# live archive missed. The CSVs are attached to the nws-backfill release as
+# nws_hml_<start>_<end>.tar.gz (and kept as a workflow artifact).
 name: NWS HML backfill
 
 on:
@@ -20,6 +21,9 @@ on:
         description: "Optional space-separated AFOS product ids to fetch as text too (e.g. RVFAKQ)"
         required: false
         default: ""
+
+permissions:
+  contents: write
 
 jobs:
   fetch:
@@ -55,3 +59,17 @@ jobs:
         with:
           name: nws-hml
           path: out/
+
+      - name: Attach to the nws-backfill release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          STS: ${{ inputs.start }}
+          ETS: ${{ inputs.end }}
+        run: |
+          name="nws_hml_${STS:0:10}_${ETS:0:10}.tar.gz"
+          tar czf "$name" -C out .
+          gh release view nws-backfill >/dev/null 2>&1 || gh release create nws-backfill \
+            --title "NWS forecast backfills" \
+            --notes "Past NWS hydrograph (HML) forecasts and observations from the Iowa Environmental Mesonet archive, fetched on demand by the NWS HML backfill workflow."
+          gh release upload nws-backfill "$name" --clobber
