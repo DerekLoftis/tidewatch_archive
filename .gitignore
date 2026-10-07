@@ -1,0 +1,8 @@
+# Archived files live in GitHub Releases; the repository keeps only the index.
+data/*
+!data/index/
+!data/status.json
+__pycache__/
+.venv/
+packs/
+*.tar.gz

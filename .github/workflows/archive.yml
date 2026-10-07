@@ -1,0 +1,80 @@
+# Archives one cycle a few minutes after 00/06/12/18Z.
+# Each run's files go to a monthly GitHub Release (archive-YYYY-MM) as one
+# tarball (about 120 a month, under the 1000-asset limit). The repository keeps
+# only the code, data/index and data/status.json, so it stays small.
+name: Archive forecasts
+
+on:
+  schedule:
+    - cron: "7 0,6,12,18 * * *"
+  workflow_dispatch:
+    inputs:
+      cycle:
+        description: "Cycle to archive, e.g. 2026-10-07T00Z (blank = nearest to now)"
+        required: false
+      jobs:
+        description: "Comma list of jobs (blank = whatever is due)"
+        required: false
+
+concurrency:
+  group: archive
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install -r archiver/requirements.txt
+
+      - name: Archive
+        id: archive
+        continue-on-error: true
+        env:
+          CYCLE: ${{ inputs.cycle }}
+          JOBS: ${{ inputs.jobs }}
+        run: |
+          args=()
+          [ -n "$CYCLE" ] && args+=(--cycle "$CYCLE")
+          [ -n "$JOBS" ] && args+=(--jobs "$JOBS")
+          python archiver/twarchive.py --data data run "${args[@]}"
+
+      - name: Upload this run's files to the monthly release
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Everything this run saved, as one tarball whose paths match the index.
+          stamp=$(date -u +%Y-%m-%dT%H%MZ)
+          files=$(cd data && find . -mindepth 1 -maxdepth 1 ! -name index ! -name status.json)
+          [ -z "$files" ] && { echo "nothing saved"; exit 0; }
+          tar czf "run_$stamp.tar.gz" -C data $files
+          tag="archive-${stamp:0:7}"
+          gh release view "$tag" >/dev/null 2>&1 || \
+            gh release create "$tag" --title "Forecast archive ${stamp:0:7}" \
+              --notes "Tidewatch, Tidewatch Classic, NWS and model forecasts archived every 6 hours. One tarball per run; data/index lists every file and the cycle it belongs to."
+          gh release upload "$tag" "run_$stamp.tar.gz" --clobber
+
+      - name: Commit index and status
+        if: always()
+        run: |
+          git config user.name "tidewatch-archive"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/index data/status.json
+          git diff --cached --quiet || git commit -m "Archive $(date -u +%Y-%m-%dT%HZ)"
+          for i in 1 2 3 4; do git pull --rebase -q && git push && break; sleep $((2**i)); done
+
+      - name: Fail the run if a source failed
+        if: steps.archive.outcome == 'failure'
+        run: |
+          cat data/status.json
+          exit 1

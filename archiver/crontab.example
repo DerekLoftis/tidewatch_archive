@@ -1,0 +1,4 @@
+# Plain cron alternative to the GitHub workflow (times are UTC; set CRON_TZ
+# if the machine's clock is local). Edit the two paths, then: crontab -e
+CRON_TZ=UTC
+7 0,6,12,18 * * *  cd /path/to/tidewatch-archive && .venv/bin/python archiver/twarchive.py --data /path/to/archive-data run >> logs/archive.log 2>&1
