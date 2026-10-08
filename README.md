@@ -9,10 +9,10 @@ what the water actually did. Builds on Lexie Chen's `archive_pipeline`
 
 | Source | What | When (UTC) |
 |---|---|---|
-| Tidewatch 2.0/3.0 `web4.vims.edu/physical/tidewatch/` | f36 forecast: CSV, chart html, png, `.pypickle`, every station, MLLW and NAVD | 00, 06, 12, 18 |
-| | 3d hindcast: CSV, html, png | 00 daily |
+| Tidewatch 2.0/3.0 `web4.vims.edu/physical/tidewatch/` | f36 forecast: CSV, chart html, `.pypickle`, every station, MLLW and NAVD | 00, 06, 12, 18 |
+| | 3d hindcast: CSV, html | 00 daily |
 | | 3d hindcast CSV only | 06, 12, 18 (keeps observations within 6 h of each f36) |
-| | 30d: CSV, html, png | 00 on the 1st and 15th |
+| | 30d: CSV, html | 00 on the 1st and 15th |
 | Tidewatch Classic `web4.vims.edu/drf/TWgraphics/` | every station jpg (30 h, f36, 3-day, ETSS) and the `staout_*` tables | 00, 06, 12, 18 |
 | NWS NWPS `api.water.noaa.gov/nwps/v1` | forecast plus the last 3 days of observations (gzipped JSON) for every gauge between Cape Charles, DC and Bishops Head that has forecast points that cycle | 00, 06, 12, 18 |
 | NWS coastal flood products (`CFW`, Wakefield and Sterling offices) | full product text issued since the last cycle | 00, 06, 12, 18 |
@@ -22,6 +22,10 @@ what the water actually did. Builds on Lexie Chen's `archive_pipeline`
 New sources are a line in `archiver/sources.py` (`MODELS`, `EXTRA_URLS`, or a new job).
 ETSS and P-ETSS come from NOMADS and are not wired in yet.
 The model files add roughly 150 MB a month.
+
+The Tidewatch `_hc.png` charts are no longer saved (since 2026-10-08): they
+have not changed upstream since 2019-2022. Add `.png` back to
+`TIDEWATCH_PRODUCTS` in `archiver/sources.py` to save them again.
 
 ## Layout
 
@@ -86,7 +90,8 @@ code is 1 and `status.json` says which failed.
 * 23 Tidewatch stations publish an f36 CSV with no `px30` forecast column
   values: CBBT, MNPT, USLI, NN01-NN10 and VB01-VB10. CBBT's file still holds
   data from May 2022.
-* Per cycle, roughly: f36 18 MB (pypickle 7, png 6, csv 3, html 2), Classic
-  7 MB, full 3d 11 MB, models and NWPS a few MB. About 3.5 GB a month.
+* Per cycle, roughly: f36 13 MB (pypickle 7, csv 3, html 2), Classic
+  7 MB, full 3d 6 MB, models and NWPS a few MB. About 2.7 GB a month
+  (3.5 GB while the png charts were saved).
 * Tidewatch updates the f36 files hourly (each starts at :36 past the previous
   hour), so a 6-hourly archive keeps one forecast in six.

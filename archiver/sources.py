@@ -24,11 +24,13 @@ TIDEWATCH_URL = os.environ.get(
     "TIDEWATCH_URL", "https://web4.vims.edu/physical/tidewatch/"
 )
 
-# Which file types to keep for each product.
+# Which file types to keep for each product. The _hc.png charts are left out
+# (Derek, 2026-10-08): they last changed upstream in 2019-2022 and every run
+# saved identical copies. Add ".png" back here to archive them again.
 TIDEWATCH_PRODUCTS = {
-    "f36": ("_f36_", (".csv", ".html", ".png", ".pypickle")),
-    "3d": ("_3d_", (".csv", ".html", ".png")),
-    "30d": ("_30d_", (".csv", ".html", ".png")),
+    "f36": ("_f36_", (".csv", ".html", ".pypickle")),
+    "3d": ("_3d_", (".csv", ".html")),
+    "30d": ("_30d_", (".csv", ".html")),
 }
 # pypickle files are named STATION_2018_f36.pypickle (no datum), so they
 # match "_f36." rather than "_f36_".

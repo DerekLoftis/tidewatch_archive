@@ -110,6 +110,7 @@ def main():
     assert "SWPT_2018_f36_MLLW.csv" in names
     assert "SWPT_2018_f36_MLLW_hc.html.gz" in names
     assert "SWPT_2018_f36.pypickle.gz" in names
+    assert not any(n.endswith(".png") for n in names), names  # charts not archived
     assert gzip.decompress((f36 / "SWPT_2018_f36_MLLW_hc.html.gz").read_bytes()) == b"<html>chart</html>"
     rows = {r["file"]: r for r in csv.DictReader(open(f36 / "manifest.csv"))}
     assert rows["SWPT_2018_f36_MLLW.csv"]["status"] == "ok"
