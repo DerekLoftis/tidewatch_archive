@@ -1,6 +1,7 @@
 # On demand: list NOAA VDatum's downloadable grid packages, and download the
 # ones whose file name matches a pattern, keeping the tidal datum .gtx grids
-# (tss, mllw, mlw, mtl, mhw, mhhw) and any boundary files. The result goes to
+# (tss, mllw, mlw, mtl, mhw, mhhw, dtl; not the _unc uncertainty grids) and
+# any boundary files. The result goes to
 # the reference-data release as vdatum_grids.tar.gz.
 name: VDatum grids
 
@@ -49,7 +50,7 @@ jobs:
             unzip -q -o "$z" -d ex
           done
           # keep the tidal grids and small non-grid files (boundaries, notes)
-          (cd ex && find . -type f \( -iname 'tss*.gtx' -o -iname 'mllw*.gtx' -o -iname 'mlw*.gtx' -o -iname 'mtl*.gtx' -o -iname 'mhw*.gtx' -o -iname 'mhhw*.gtx' -o ! -iname '*.gtx' \) -print0 | xargs -0 -I{} cp --parents {} ../out/) || true
+          (cd ex && find . -type f \( -iregex '.*\(^\|/\|_\)\(tss\|mllw\|mlw\|mtl\|mhw\|mhhw\|dtl\)\.gtx' -o ! -iname '*.gtx' \) -print0 | xargs -0 -I{} cp --parents {} ../out/) || true
           find out -type f | sort | head -300; du -sh out
 
       - name: Attach to the reference-data release
