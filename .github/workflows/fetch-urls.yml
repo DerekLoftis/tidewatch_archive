@@ -1,0 +1,49 @@
+# On demand: fetch a list of public URLs (one per line) as-is, for reference
+# data the project sandboxes can't reach. Results go to the reference-data
+# release as <name>.tar.gz with a _summary.csv of status codes.
+name: Fetch URLs
+
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: "Name for the result tarball"
+        required: true
+      urls:
+        description: "Space-separated URLs; prefix with file= to name the output (e.g. gs01.json=https://...)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Download
+        env:
+          URLS: ${{ inputs.urls }}
+        run: |
+          mkdir -p out
+          echo "file,http,bytes,content_type,url" > out/_summary.csv
+          n=0
+          for item in $URLS; do
+            n=$((n+1))
+            case "$item" in http*) f="url_$n"; url="$item";; *) f="${item%%=*}"; url="${item#*=}";; esac
+            res=$(curl -sS -L -m 120 --retry 2 -A "Mozilla/5.0 (tidewatch-archive, VIMS)" -o "out/$f" -w "%{http_code},%{content_type}" "$url" || echo "000,")
+            echo "$f,${res%%,*},$(stat -c %s "out/$f" 2>/dev/null || echo 0),${res#*,},$url" >> out/_summary.csv
+            sleep 1
+          done
+          cat out/_summary.csv
+
+      - name: Attach to the reference-data release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          NAME: ${{ inputs.name }}
+        run: |
+          tar czf "$NAME.tar.gz" -C out .
+          gh release view reference-data >/dev/null 2>&1 || gh release create reference-data \
+            --title "Reference data" --notes "Station metadata fetched on demand."
+          gh release upload reference-data "$NAME.tar.gz" --clobber
