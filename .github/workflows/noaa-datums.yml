@@ -1,0 +1,52 @@
+# On demand: fetch NOAA Tides and Currents datums (JSON from the metadata API,
+# plus the datums web page) for the listed stations. The files are attached to
+# the reference-data release as noaa_datums.tar.gz.
+name: NOAA station datums
+
+on:
+  workflow_dispatch:
+    inputs:
+      ids:
+        description: "Space-separated NOAA station ids"
+        required: true
+        default: "8571421 8638901 8635027 8632200 8635750 8639348 8638610 8631044 8594900 8636580 8637689"
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Download
+        env:
+          IDS: ${{ inputs.ids }}
+        run: |
+          mkdir -p out
+          echo "id,file,http,bytes" > out/_summary.csv
+          for id in $IDS; do
+            for kind in json html; do
+              if [ $kind = json ]; then
+                url="https://api.tidesandcurrents.noaa.gov/mdapi/prod/webapi/stations/$id/datums.json?units=english"
+              else
+                url="https://tidesandcurrents.noaa.gov/datums.html?id=$id"
+              fi
+              f="out/$id.$kind"
+              code=$(curl -sS -m 120 --retry 3 -A "tidewatch-archive (VIMS)" -o "$f" -w "%{http_code}" "$url" || echo 000)
+              echo "$id,$id.$kind,$code,$(stat -c %s "$f" 2>/dev/null || echo 0)" >> out/_summary.csv
+              sleep 1
+            done
+          done
+          cat out/_summary.csv
+
+      - name: Attach to the reference-data release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          tar czf noaa_datums.tar.gz -C out .
+          gh release view reference-data >/dev/null 2>&1 || gh release create reference-data \
+            --title "Reference data" \
+            --notes "Station metadata fetched on demand, e.g. NOAA Tides and Currents datums."
+          gh release upload reference-data noaa_datums.tar.gz --clobber
