@@ -1,0 +1,65 @@
+# On demand: fetch USGS site metadata (location, elevation datum) and the
+# NOAA VDatum offsets from NAVD88 to tidal datums at each site. Files go to
+# the reference-data release as usgs_vdatum.tar.gz.
+name: USGS sites and VDatum offsets
+
+on:
+  workflow_dispatch:
+    inputs:
+      sites:
+        description: "Space-separated USGS site numbers"
+        required: true
+      targets:
+        description: "VDatum target vertical datums"
+        required: true
+        default: "MLLW MLW MTL MSL MHW MHHW LAT HAT DTL"
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Download
+        env:
+          SITES: ${{ inputs.sites }}
+          TARGETS: ${{ inputs.targets }}
+        run: |
+          mkdir -p out
+          echo "id,file,http,bytes" > out/_summary.csv
+          get() {  # url file
+            code=$(curl -sS -m 120 --retry 3 -A "tidewatch-archive (VIMS)" -o "out/$2" -w "%{http_code}" "$1" || echo 000)
+            echo "$3,$2,$code,$(stat -c %s "out/$2" 2>/dev/null || echo 0)" >> out/_summary.csv
+          }
+          for id in $SITES; do
+            get "https://waterservices.usgs.gov/nwis/site/?format=rdb&siteOutput=expanded&sites=$id" "$id.rdb" "$id"
+            read lat lon < <(python3 - "out/$id.rdb" <<'PY'
+          import sys
+          rows = [l.rstrip("\n").split("\t") for l in open(sys.argv[1]) if l.strip() and not l.startswith("#")]
+          if len(rows) >= 3:
+              h = rows[0]; r = rows[2]
+              print(r[h.index("dec_lat_va")], r[h.index("dec_long_va")])
+          else:
+              print("", "")
+          PY
+            )
+            echo "$id $lat $lon"
+            [ -z "$lat" ] && continue
+            for t in $TARGETS; do
+              get "https://vdatum.noaa.gov/vdatumweb/api/convert?s_x=$lon&s_y=$lat&s_z=0&s_h_frame=NAD83_2011&s_v_frame=NAVD88&t_h_frame=NAD83_2011&t_v_frame=$t&s_v_unit=us_ft&t_v_unit=us_ft&region=contiguous" "${id}_$t.json" "$id"
+              sleep 1
+            done
+          done
+          cat out/_summary.csv
+
+      - name: Attach to the reference-data release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          tar czf usgs_vdatum.tar.gz -C out .
+          gh release view reference-data >/dev/null 2>&1 || gh release create reference-data \
+            --title "Reference data" --notes "Station metadata fetched on demand."
+          gh release upload reference-data usgs_vdatum.tar.gz --clobber
