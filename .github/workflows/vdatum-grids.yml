@@ -1,0 +1,64 @@
+# On demand: list NOAA VDatum's downloadable grid packages, and download the
+# ones whose file name matches a pattern, keeping the tidal datum .gtx grids
+# (tss, mllw, mlw, mtl, mhw, mhhw) and any boundary files. The result goes to
+# the reference-data release as vdatum_grids.tar.gz.
+name: VDatum grids
+
+on:
+  workflow_dispatch:
+    inputs:
+      pattern:
+        description: "Extended regex for package names to download; empty = list only"
+        required: false
+        default: ""
+      page:
+        description: "Download page to read links from"
+        required: false
+        default: "https://vdatum.noaa.gov/download.php"
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Download
+        env:
+          PATTERN: ${{ inputs.pattern }}
+          PAGE: ${{ inputs.page }}
+        run: |
+          mkdir -p out zips
+          curl -sS -L -m 120 -A "tidewatch-archive (VIMS)" -o out/download_page.html "$PAGE"
+          grep -oiE 'href="[^"]+\.(zip|gtx|kml|txt)"' out/download_page.html | sed -E 's/^href="//I; s/"$//' | sort -u > out/links.txt
+          wc -l out/links.txt; cat out/links.txt
+          [ -z "$PATTERN" ] && exit 0
+          base=$(dirname "$PAGE")
+          echo "url,http,bytes" > out/_summary.csv
+          grep -E "$PATTERN" out/links.txt | while read -r l; do
+            case "$l" in http*) url="$l";; /*) url="https://vdatum.noaa.gov$l";; *) url="$base/$l";; esac
+            f="zips/$(basename "$l")"
+            code=$(curl -sS -L -m 1200 --retry 3 -A "tidewatch-archive (VIMS)" -o "$f" -w "%{http_code}" "$url" || echo 000)
+            echo "$url,$code,$(stat -c %s "$f" 2>/dev/null || echo 0)" >> out/_summary.csv
+          done
+          cat out/_summary.csv
+          for z in zips/*.zip; do
+            [ -f "$z" ] || continue
+            unzip -l "$z" > "out/$(basename "$z" .zip)_contents.txt" || continue
+            unzip -q -o "$z" -d ex
+          done
+          # keep the tidal grids and small non-grid files (boundaries, notes)
+          (cd ex && find . -type f \( -iname 'tss*.gtx' -o -iname 'mllw*.gtx' -o -iname 'mlw*.gtx' -o -iname 'mtl*.gtx' -o -iname 'mhw*.gtx' -o -iname 'mhhw*.gtx' -o ! -iname '*.gtx' \) -print0 | xargs -0 -I{} cp --parents {} ../out/) || true
+          find out -type f | sort | head -300; du -sh out
+
+      - name: Attach to the reference-data release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          name=vdatum_grids.tar.gz; [ -z "${{ inputs.pattern }}" ] && name=vdatum_links.tar.gz
+          tar czf $name -C out .
+          gh release view reference-data >/dev/null 2>&1 || gh release create reference-data \
+            --title "Reference data" --notes "Station metadata fetched on demand."
+          gh release upload reference-data $name --clobber
