@@ -12,7 +12,11 @@ on:
       targets:
         description: "VDatum target vertical datums"
         required: true
-        default: "MLLW MLW MTL MSL MHW MHHW LAT HAT DTL"
+        default: "MLLW MLW MTL LMSL MHW MHHW DTL"
+      probe:
+        description: "Optional: space-separated VDatum query strings (after convert?) to try instead; saved as probe_<n>.json"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -26,6 +30,7 @@ jobs:
         env:
           SITES: ${{ inputs.sites }}
           TARGETS: ${{ inputs.targets }}
+          PROBE: ${{ inputs.probe }}
         run: |
           mkdir -p out
           echo "id,file,http,bytes" > out/_summary.csv
@@ -33,6 +38,14 @@ jobs:
             code=$(curl -sS -m 120 --retry 3 -A "tidewatch-archive (VIMS)" -o "out/$2" -w "%{http_code}" "$1" || echo 000)
             echo "$3,$2,$code,$(stat -c %s "out/$2" 2>/dev/null || echo 0)" >> out/_summary.csv
           }
+          if [ -n "$PROBE" ]; then
+            n=0
+            for q in $PROBE; do
+              n=$((n+1)); get "https://vdatum.noaa.gov/vdatumweb/api/convert?$q" "probe_$n.json" probe
+              echo "$n $q"; cat "out/probe_$n.json"; echo
+            done
+            SITES=""
+          fi
           for id in $SITES; do
             get "https://waterservices.usgs.gov/nwis/site/?format=rdb&siteOutput=expanded&sites=$id" "$id.rdb" "$id"
             read lat lon < <(python3 - "out/$id.rdb" <<'PY'
@@ -59,7 +72,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
-          tar czf usgs_vdatum.tar.gz -C out .
+          name=usgs_vdatum.tar.gz; [ -n "${{ inputs.probe }}" ] && name=vdatum_probe.tar.gz
+          tar czf $name -C out .
           gh release view reference-data >/dev/null 2>&1 || gh release create reference-data \
             --title "Reference data" --notes "Station metadata fetched on demand."
-          gh release upload reference-data usgs_vdatum.tar.gz --clobber
+          gh release upload reference-data $name --clobber
