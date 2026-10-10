@@ -188,7 +188,7 @@ class CycleWriter:
         self.pack_dir = None
 
     def add(self, name, url, response=None, data=None, status="ok", note="",
-            extra=None):
+            extra=None, gz=False):
         """Save one file and record it. `response` or `data` carries content."""
         row = dict.fromkeys(INDEX_FIELDS, "")
         row.update(cycle=cycle_label(self.cycle), job=self.job, url=url,
@@ -205,7 +205,7 @@ class CycleWriter:
         if data is not None:
             row["sha256"] = hashlib.sha256(data).hexdigest()
             row["bytes"] = len(data)
-            if name.endswith(GZIP_EXTENSIONS):
+            if gz or name.endswith(GZIP_EXTENSIONS):
                 name += ".gz"
                 data = gzip.compress(data, mtime=0)
             (self.tmp / name).write_bytes(data)
@@ -488,13 +488,9 @@ def _archive_model_run(session, data_root, m, run, pack_dir=None):
             except Exception as e:
                 mw.add(name, url, status="failed", note=f"subset failed: {e}"[:200])
             continue
-        row = mw.add(name, url, response=r)
-        if row["status"] == "ok" and name.endswith(".shef"):
-            # SHEF is plain text; gzip it on disk (about 8x smaller).
-            path = mw.tmp / row["file"]
-            path.with_name(path.name + ".gz").write_bytes(gzip.compress(path.read_bytes(), mtime=0))
-            path.unlink()
-            row["file"] += ".gz"
+        # SHEF is plain text; gzip it in memory (about 8x smaller). Writing the
+        # raw file and unlinking it failed on the project's shared mount.
+        mw.add(name, url, response=r, gz=name.endswith(".shef"))
     if len(mw.rows) < len(m["keys"]):
         shutil.rmtree(mw.tmp, ignore_errors=True)  # incomplete run; retry later
         return 0
