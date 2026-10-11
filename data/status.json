@@ -3,34 +3,34 @@
     "counts": {
       "ok": 51
     },
-    "cycle": "2026-10-10T2133Z",
+    "cycle": "2026-10-11T06Z",
     "result": "ok",
-    "started_utc": "2026-10-10T21:34:06+00:00"
+    "started_utc": "2026-10-11T05:35:59+00:00"
   },
   "models": {
     "counts": {
       "ok": 1
     },
-    "cycle": "2026-10-10T2133Z",
+    "cycle": "2026-10-11T06Z",
     "result": "ok",
-    "started_utc": "2026-10-10T21:34:34+00:00"
+    "started_utc": "2026-10-11T05:36:23+00:00"
   },
   "nwps": {
     "counts": {
       "ok": 50,
       "skipped": 109
     },
-    "cycle": "2026-10-10T2133Z",
+    "cycle": "2026-10-11T06Z",
     "result": "ok",
-    "started_utc": "2026-10-10T21:34:08+00:00"
+    "started_utc": "2026-10-11T05:35:59+00:00"
   },
   "nws-cfw": {
     "counts": {
       "ok": 2
     },
-    "cycle": "2026-10-10T2133Z",
+    "cycle": "2026-10-11T06Z",
     "result": "ok",
-    "started_utc": "2026-10-10T21:34:33+00:00"
+    "started_utc": "2026-10-11T05:36:22+00:00"
   },
   "tidewatch:3d": {
     "counts": {
@@ -44,17 +44,17 @@
     "counts": {
       "ok": 114
     },
-    "cycle": "2026-10-10T2133Z",
+    "cycle": "2026-10-11T06Z",
     "result": "ok",
-    "started_utc": "2026-10-10T21:34:01+00:00"
+    "started_utc": "2026-10-11T05:35:57+00:00"
   },
   "tidewatch:f36": {
     "counts": {
       "ok": 240,
       "suspect": 46
     },
-    "cycle": "2026-10-10T2133Z",
+    "cycle": "2026-10-11T06Z",
     "result": "ok",
-    "started_utc": "2026-10-10T21:33:46+00:00"
+    "started_utc": "2026-10-11T05:35:49+00:00"
   }
 }
