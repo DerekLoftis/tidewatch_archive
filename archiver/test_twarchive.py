@@ -22,12 +22,12 @@ def make_site(root):
     tw = root / "tidewatch"
     tw.mkdir()
     times = [CYCLE - timedelta(minutes=24) + timedelta(minutes=6 * i) for i in range(360)]
-    for st in ("SWPT", "VB01"):
+    for st in ("SWPT", "CBBT", "VB01"):  # VB01 is a retired station the archiver skips
         for datum in ("MLLW", "NAVD"):
             with open(tw / f"{st}_2018_f36_{datum}.csv", "w") as f:
                 f.write("time,pa30,anom,px30\n")
                 for t in times:
-                    px = "" if st == "VB01" else "1.2"
+                    px = "1.2" if st == "SWPT" else ""
                     f.write(f"{t:%Y-%m-%dT%H:%M:%SZ},1.5,-0.3,{px}\n")
             (tw / f"{st}_2018_f36_{datum}_hc.html").write_text("<html>chart</html>")
             (tw / f"{st}_2018_f36_{datum}_hc.png").write_bytes(b"\x89PNG")
@@ -114,8 +114,9 @@ def main():
     assert gzip.decompress((f36 / "SWPT_2018_f36_MLLW_hc.html.gz").read_bytes()) == b"<html>chart</html>"
     rows = {r["file"]: r for r in csv.DictReader(open(f36 / "manifest.csv"))}
     assert rows["SWPT_2018_f36_MLLW.csv"]["status"] == "ok"
-    assert rows["VB01_2018_f36_MLLW.csv"]["status"] == "suspect"  # empty px30, kept
-    assert (f36 / "VB01_2018_f36_MLLW.csv").exists()
+    assert rows["CBBT_2018_f36_MLLW.csv"]["status"] == "suspect"  # empty px30, kept
+    assert (f36 / "CBBT_2018_f36_MLLW.csv").exists()
+    assert not any(n.startswith("VB01") for n in rows)  # retired station, not archived
     assert not any("_3d_" in n for n in names)
 
     # 00Z on the 1st: full 3d and 30d as well

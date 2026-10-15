@@ -32,6 +32,12 @@ TIDEWATCH_PRODUCTS = {
     "3d": ("_3d_", (".csv", ".html")),
     "30d": ("_30d_", (".csv", ".html")),
 }
+# Stations not archived (Derek, 2026-10-15): NN01-NN10 and VB01-VB10 have not
+# updated in over a year and are slated for removal from web4; USNW, USPF and
+# USSV are non-tidal or lack needed data. Matched against the start of each
+# file name, for Tidewatch 2.0/3.0 and classic alike.
+SKIP_STATIONS = r"^(NN\d\d|VB\d\d|USNW|USPF|USSV)(?![A-Z])"
+
 # pypickle files are named STATION_2018_f36.pypickle (no datum), so they
 # match "_f36." rather than "_f36_".
 TIDEWATCH_ALT_PATTERNS = {"f36": "_f36."}

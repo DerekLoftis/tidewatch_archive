@@ -282,7 +282,7 @@ def job_tidewatch(session, w, product, csv_only=False):
     urls = []
     for url in list_directory(session, cfg.TIDEWATCH_URL):
         name = unquote(Path(urlparse(url).path).name)
-        if not name.lower().endswith(exts):
+        if not name.lower().endswith(exts) or re.match(cfg.SKIP_STATIONS, name):
             continue
         if pattern in name or (alt and alt in name):
             urls.append((name, url))
@@ -311,7 +311,8 @@ def job_classic(session, w):
     kept = 0
     for url in urls:
         name = unquote(Path(urlparse(url).path).name)
-        if name in cfg.CLASSIC_SKIP or Path(name).suffix.lower() not in cfg.CLASSIC_EXTENSIONS:
+        if (name in cfg.CLASSIC_SKIP or Path(name).suffix.lower() not in cfg.CLASSIC_EXTENSIONS
+                or re.match(cfg.SKIP_STATIONS, name)):
             continue
         kept += 1
         m = re.match(r"^([A-Z0-9]{4})\d{4}", name)

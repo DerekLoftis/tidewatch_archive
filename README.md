@@ -27,6 +27,10 @@ The Tidewatch `_hc.png` charts are no longer saved (since 2026-10-08): they
 have not changed upstream since 2019-2022. Add `.png` back to
 `TIDEWATCH_PRODUCTS` in `archiver/sources.py` to save them again.
 
+Since 2026-10-15 the retired stations NN01-NN10 and VB01-VB10 and the
+non-tidal USNW, USPF and USSV are skipped (`SKIP_STATIONS` in
+`archiver/sources.py`), and their earlier files were removed from the project copy.
+
 ## Layout
 
 ```
