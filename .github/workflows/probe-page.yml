@@ -1,0 +1,35 @@
+# On demand: render a JavaScript web app headless and save its screenshot, text,
+# chart data and network responses to the reference-data release as <name>.tar.gz.
+name: Probe page
+
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: "Name for the result tarball"
+        required: true
+      url:
+        required: true
+      wait_ms:
+        default: "45000"
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          npm install --no-save playwright@1.47.2
+          npx playwright install --with-deps chromium
+          node tools/probe_page.js "${{ inputs.url }}" out "${{ inputs.wait_ms }}"
+          ls -la out
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          NAME: ${{ inputs.name }}
+        run: |
+          tar czf "$NAME.tar.gz" -C out .
+          gh release upload reference-data "$NAME.tar.gz" --clobber
