@@ -12,6 +12,9 @@ on:
         required: true
       wait_ms:
         default: "45000"
+      clicks:
+        description: "Texts to click in order, separated by |"
+        default: ""
 
 permissions:
   contents: write
@@ -25,7 +28,7 @@ jobs:
       - run: |
           npm install --no-save playwright@1.47.2
           npx playwright install --with-deps chromium
-          node tools/probe_page.js "${{ inputs.url }}" out "${{ inputs.wait_ms }}"
+          node tools/probe_page.js "${{ inputs.url }}" out "${{ inputs.wait_ms }}" "${{ inputs.clicks }}"
           ls -la out
       - env:
           GH_TOKEN: ${{ github.token }}

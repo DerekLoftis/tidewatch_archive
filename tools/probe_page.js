@@ -18,6 +18,16 @@ const fs = require('fs');
   page.on('websocket', s => s.on('framereceived', f => ws.push(typeof f.payload === 'string' ? f.payload : Buffer.from(f.payload).toString('base64'))));
   await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
   await page.waitForTimeout(waitMs);
+  for (const label of (process.argv[5] || '').split('|').filter(Boolean)) {
+    try {
+      const el = page.getByText(label, { exact: true }).first();
+      fs.appendFileSync(`${out}/clicks.txt`, `${label}: count ${await page.getByText(label, { exact: true }).count()}\n`);
+      await el.click({ timeout: 10000 });
+      fs.appendFileSync(`${out}/clicks.txt`, `${label}: clicked\n`);
+      await page.waitForTimeout(15000);
+      await page.screenshot({ path: `${out}/after_${label.replace(/\W+/g, '_')}.png` });
+    } catch (e) { fs.appendFileSync(`${out}/clicks.txt`, `${label}: ${e}\n`); }
+  }
   await page.screenshot({ path: `${out}/page.png`, fullPage: true });
   fs.writeFileSync(`${out}/text.txt`, await page.evaluate(() => document.body.innerText));
   fs.writeFileSync(`${out}/plotly.json`, JSON.stringify(await page.evaluate(() =>
