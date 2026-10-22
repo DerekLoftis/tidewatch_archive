@@ -1,4 +1,6 @@
-# Archives one cycle a few minutes after 00/06/12/18Z.
+# Archives one run in each 6-hour slot (00/06/12/18Z). GitHub starts scheduled
+# runs hours late and sometimes drops them, so the schedule fires hourly and a
+# scheduled run exits early when its slot already has a run (data/status.json).
 # Each run's files go to a monthly GitHub Release (archive-YYYY-MM) as one
 # tarball (about 120 a month, under the 1000-asset limit). The repository keeps
 # only the code, data/index and data/status.json, so it stays small.
@@ -6,7 +8,7 @@ name: Archive forecasts
 
 on:
   schedule:
-    - cron: "7 0,6,12,18 * * *"
+    - cron: "7 * * * *"
   workflow_dispatch:
     inputs:
       cycle:
@@ -30,14 +32,33 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Skip if this 6-hour slot is already archived
+        id: due
+        if: github.event_name == 'schedule'
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, datetime as dt
+          now = dt.datetime.now(dt.timezone.utc)
+          slot = now.replace(hour=now.hour - now.hour % 6, minute=0, second=0, microsecond=0)
+          try:
+              last = dt.datetime.fromisoformat(json.load(open("data/status.json"))["tidewatch:f36"]["started_utc"])
+          except Exception:
+              last = None
+          print("skip=" + ("true" if last and last >= slot else "false"))
+          PY
+          cat "$GITHUB_OUTPUT"
+
       - uses: actions/setup-python@v5
+        if: steps.due.outputs.skip != 'true'
         with:
           python-version: "3.12"
 
       - run: pip install -r archiver/requirements.txt
+        if: steps.due.outputs.skip != 'true'
 
       - name: Archive
         id: archive
+        if: steps.due.outputs.skip != 'true'
         continue-on-error: true
         env:
           CYCLE: ${{ inputs.cycle }}
@@ -49,7 +70,7 @@ jobs:
           python archiver/twarchive.py --data data run "${args[@]}"
 
       - name: Upload this run's files to the monthly release
-        if: always()
+        if: always() && steps.due.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -65,7 +86,7 @@ jobs:
           gh release upload "$tag" "run_$stamp.tar.gz" --clobber
 
       - name: Commit index and status
-        if: always()
+        if: always() && steps.due.outputs.skip != 'true'
         run: |
           git config user.name "tidewatch-archive"
           git config user.email "actions@users.noreply.github.com"

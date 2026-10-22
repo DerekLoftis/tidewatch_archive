@@ -111,8 +111,9 @@ EXTRA_URLS = []
 def jobs_for_cycle(cycle):
     """Return the job names due at a cycle (a UTC datetime on a 6-hour mark)."""
     jobs = ["tidewatch:f36"]
-    # Full 3d set (CSV, html, png) at 00Z; CSV only at the other cycles.
-    midnight = cycle.hour == 0 and cycle.minute == 0
+    # Full 3d set (CSV, html, png) in the 00Z slot; CSV only at the other cycles. A run
+    # GitHub started late still counts for its slot (it files under its own minute).
+    midnight = cycle.hour < 6
     jobs.append("tidewatch:3d" if midnight else "tidewatch:3d-csv")
     if midnight and cycle.day in (1, 15):
         jobs.append("tidewatch:30d")
