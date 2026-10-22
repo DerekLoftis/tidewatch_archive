@@ -1,0 +1,36 @@
+# Moves run tarballs that only the project folder captured onto a GitHub release.
+# A Claude session pushes them to a temporary branch under upload/ (sessions cannot
+# create releases), then dispatches this workflow on that branch. The workflow
+# uploads every upload/*.tar.gz to the release named in `tag` and deletes the branch.
+name: Upload project-only runs
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag, e.g. project-runs-2026-10"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Upload to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          ls upload/*.tar.gz
+          gh release view "$TAG" >/dev/null 2>&1 || \
+            gh release create "$TAG" --target main --title "Project-only runs ${TAG#project-runs-}" \
+              --notes "Archive runs the project folder captured but no scheduled GitHub run did (late or skipped schedules). Same layout as the archive-YYYY-MM tarballs; run.tar packs are expanded."
+          gh release upload "$TAG" upload/*.tar.gz --clobber
+
+      - name: Delete the temporary branch
+        if: success() && github.ref_name != 'main'
+        run: git push origin --delete "${{ github.ref_name }}"
