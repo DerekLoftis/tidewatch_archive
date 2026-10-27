@@ -6,3 +6,6 @@ __pycache__/
 .venv/
 packs/
 *.tar.gz
+tidewatch_site/site/
+tidewatch_site/raw/
+tidewatch_site/styled/

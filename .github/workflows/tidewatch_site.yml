@@ -1,0 +1,71 @@
+# Every 6 hours (20 minutes after the archive runs) build the public Tidewatch latest site and
+# publish it to DerekLoftis/tidewatch_latest. The build (tidewatch_site/publish.py) copies web4's
+# newest f36/3d/30d charts and CSVs, rebuilds CBBT, MNPT, DAHL and WADC from NOAA CO-OPS, adds BRDH,
+# USLN-X, CNRC and the NWPS stand-ins (noaa_override.py), and restyles the pages (styler/). The site
+# is pushed to tidewatch_latest's `site` branch (one commit, replaced each time) and a `publish`
+# repository_dispatch runs that repository's deploy workflow, so no build code is public.
+# Needs the TIDEWATCH_PUBLISH_TOKEN secret: a fine-grained token with Contents read and write on
+# DerekLoftis/tidewatch_latest. Without it the site is built but not published.
+name: Build Tidewatch latest
+
+on:
+  schedule:
+    - cron: "20 0,6,12,18 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tidewatch-site
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: tidewatch_site
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r styler/requirements.txt
+      - name: Fetch the latest Tidewatch files and build the rest
+        run: python publish.py site raw
+      # Datum lines, m30, disclaimer and logo. A page that can't be styled keeps Tidewatch's original.
+      - name: Style the chart pages
+        continue-on-error: true
+        run: |
+          cd styler
+          for p in f36 3d 30d; do
+            [ -d ../site/$p ] || continue
+            python style_pages.py --product $p --pages ../site/$p --csv ../site/$p \
+              --pickles ../raw/f36 --out ../styled/$p --jsdir=../jslib 2>&1 | tee -a ../site/style_log.txt || continue
+            cp ../styled/$p/*.html ../site/$p/
+          done
+          mkdir -p ../site/jslib && cp jslib/* vims_logo.png ../site/jslib/
+      - name: Publish to tidewatch_latest
+        env:
+          TOKEN: ${{ secrets.TIDEWATCH_PUBLISH_TOKEN }}
+        run: |
+          if [ -z "$TOKEN" ]; then
+            echo "::warning::TIDEWATCH_PUBLISH_TOKEN is not set: the site was built but not published"
+            exit 0
+          fi
+          cd site
+          git init -q -b site
+          git config user.name "tidewatch-archive"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git commit -qm "Tidewatch latest $(date -u +%Y-%m-%dT%H:%MZ)"
+          for i in 1 2 3 4; do
+            git push -qf "https://x-access-token:${TOKEN}@github.com/DerekLoftis/tidewatch_latest.git" site && break
+            [ $i = 4 ] && exit 1
+            sleep $((2**i))
+          done
+          curl -fsS -X POST -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/DerekLoftis/tidewatch_latest/dispatches -d '{"event_type":"publish"}'
