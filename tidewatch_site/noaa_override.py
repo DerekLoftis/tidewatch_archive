@@ -403,13 +403,18 @@ def petss_proxies(pet, days=32):
 
 
 # --- products --------------------------------------------------------------------
-def build(st, obs_t, obs_v, surge=None):
-    """Arrays for one station: 30-day hindcast and 36-hour forecast (ft above MLLW)."""
+STALE_MAX = timedelta(days=30)  # older than this, the station is dropped (Tidewatch's own files stay)
+
+
+def build(st, obs_t, obs_v, surge=None, start=None):
+    """Arrays for one station: 30-day hindcast and 36-hour forecast (ft above MLLW). With `start`
+    (observations stale), the forecast runs from `start` as tide plus P-ETSS surge, with no residual
+    offset, since the latest residual is too old to carry forward."""
     t0 = obs_t[-1]
     keep = obs_t > t0 - timedelta(days=30)
     ot, ov = obs_t[keep], obs_v[keep]
     m30 = float(np.mean(ov))
-    ft = np.array([t0 + i * STEP for i in range(360)])
+    ft = np.array([(start or t0) + i * STEP for i in range(360)])
     h = tide(st, list(ot) + list(ft))
     ho, hf = h[:len(ot)], h[len(ot):]
     base = m30 - float(np.mean(ho))
@@ -418,13 +423,22 @@ def build(st, obs_t, obs_v, surge=None):
     r0 = float(np.mean(anom_o[ot > t0 - timedelta(minutes=30)]))
     guidance = "persistence of the latest residual (no P-ETSS surge available)"
     res_f = np.full(len(ft), r0)
+    if start is not None:
+        r0 = 0.0
+        guidance = (f"astronomic tide only; observations stale since {t0:%Y-%m-%d %H:%MZ}")
+        res_f = np.zeros(len(ft))
     if surge is not None:
         s = surge_at(ft, *surge)
         if not np.isnan(s[0]):
             s = SURGE_FACTOR * s
             s = np.where(np.isnan(s), np.nan, s)
-            res_f = s - s[0] + r0
-            guidance = f"P-ETSS ensemble-mean surge x {SURGE_FACTOR}, offset to the latest residual"
+            if start is not None:
+                res_f = s
+                guidance = (f"P-ETSS ensemble-mean surge x {SURGE_FACTOR} on the tide (observations stale since "
+                            f"{t0:%Y-%m-%d %H:%MZ}, so not offset to the latest residual)")
+            else:
+                res_f = s - s[0] + r0
+                guidance = f"P-ETSS ensemble-mean surge x {SURGE_FACTOR}, offset to the latest residual"
     return {"t0": t0, "m30": m30, "obs_t": ot, "obs": ov, "pa": pa_o, "anom": anom_o,
             "ft": ft, "pa_f": pa_f, "res_f": res_f, "px": pa_f + res_f, "guidance": guidance}
 
@@ -595,11 +609,20 @@ def apply(dirs, pickles=None, stations=None):
             continue
         try:
             t, v = observations(st)
-            if len(t) < 240 or t[-1] < now() - timedelta(hours=12):
+            if len(t) < 240 or t[-1] < now() - STALE_MAX:
                 raise RuntimeError(f"too few or stale observations ({len(t)}, last {t[-1] if len(t) else None})")
-            b = build(st, t, v, surges.get(surge_id(st)))
+            # stale gauge: keep publishing (the VIMS pages link these files) with the last observations
+            # and a forecast from now; the chart's "Latest Observation" shows how old they are
+            stale = t[-1] < now() - timedelta(hours=12)
+            start = None
+            if stale:
+                n = now()
+                start = n.replace(minute=n.minute - n.minute % 6, second=0, microsecond=0)
+            b = build(st, t, v, surges.get(surge_id(st)), start)
             sources = write_station(st, b, dirs, pickles)
-            notes[st] = {"stand_in": "nwps" in STATIONS[st], "sources": sources, "latest_obs": iso(b["t0"]), "m30_ft_mllw": round(b["m30"], 3),
+            if stale:
+                print(f"  {st}: WARNING observations stale since {iso(t[-1])}; forecast from now without residual")
+            notes[st] = {"stale": stale, "stand_in": "nwps" in STATIONS[st], "sources": sources, "latest_obs": iso(b["t0"]), "m30_ft_mllw": round(b["m30"], 3),
                          "navd88_above_mllw_ft": STATIONS[st]["navd"], "forecast": b["guidance"],
                          "petss_cycle": cycle.strftime("%Y-%m-%dT%HZ") if cycle else None}
             if "nwps" in STATIONS[st]:
