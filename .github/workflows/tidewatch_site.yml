@@ -1,5 +1,5 @@
-# Every 6 hours (20 minutes after the archive runs) build the public Tidewatch latest site and
-# publish it to DerekLoftis/tidewatch_latest. The build (tidewatch_site/publish.py) copies web4's
+# Every 6 hours (cron-job.org dispatches it at 00:20, 06:20, 12:20 and 18:20 UTC) build the public
+# Tidewatch latest site and publish it to DerekLoftis/tidewatch_latest. The build (tidewatch_site/publish.py) copies web4's
 # newest f36/3d/30d charts and CSVs, rebuilds CBBT, MNPT, DAHL and WADC from NOAA CO-OPS, adds BRDH,
 # USLN-X, CNRC and the NWPS stand-ins (noaa_override.py), and restyles the pages (styler/). The site
 # is pushed to tidewatch_latest's `site` branch (one commit, replaced each time) and a `publish`
@@ -9,8 +9,7 @@
 name: Build Tidewatch latest
 
 on:
-  schedule:
-    - cron: "20 0,6,12,18 * * *"
+  # run by cron-job.org (dispatch at the times in the header); GitHub's own cron ran hours late
   workflow_dispatch:
 
 permissions:

@@ -106,12 +106,12 @@ The site at https://derekloftis.github.io/tidewatch_latest/ is built here and
 only published from the public DerekLoftis/tidewatch_latest, which holds no
 code. See `tidewatch_site/README.md`. Two workflows:
 
-* `.github/workflows/tidewatch_site.yml` (00:20, 06:20, 12:20, 18:20 UTC):
+* `.github/workflows/tidewatch_site.yml` (dispatched by cron-job.org at 00:20, 06:20, 12:20, 18:20 UTC):
   builds the site and pushes it to tidewatch_latest's `site` branch, then sends
   it a `publish` repository_dispatch, which deploys GitHub Pages. Needs the
   `TIDEWATCH_PUBLISH_TOKEN` secret (fine-grained token, Contents read and write
   on tidewatch_latest).
-* `.github/workflows/capture.yml` (:50 before and :05 after each cycle):
+* `.github/workflows/capture.yml` (dispatched by cron-job.org at :05 past each cycle):
   captures USLN-X (FloodVISION-AI), CNRC (GreenStream) and the NWPS stand-in
   gauges into `tidewatch_site/floodvision/`, `greenstream/` and `nwps/`, and
   commits them here.
