@@ -24,6 +24,10 @@ TIDEWATCH_URL = os.environ.get("TIDEWATCH_URL", "https://web4.vims.edu/physical/
 UA = {"User-Agent": "tidewatch-latest (VIMS)"}
 # The NAVD chart page has no datum in its name (SWPT_2018_f36_hc.html).
 NAME = re.compile(r"^([A-Z0-9-]+)_\d{4}_(f36|3d|30d)(?:_(MLLW|NAVD))?(_hc\.html|\.csv)$")
+# Retired by Derek (2026-10-15): NN01-NN10 and VB01-VB10 (no observations for over a year) and the
+# non-tidal USNW, USPF and USSV (a harmonic forecast means nothing there). web4 still lists them, so
+# they are skipped here; never reintroduce them.
+DROP = re.compile(r"^(NN\d\d|VB\d\d|USNW|USPF|USSV)_")
 # f36 pickles: not published, but the datum styler needs them (m30, station list)
 PICKLE = re.compile(r"^[A-Z0-9-]+_\d{4}_f36\.pypickle$")
 
@@ -41,12 +45,12 @@ def get(url, tries=3):
 
 def main(site="site", raw="raw"):
     listing = get(TIDEWATCH_URL).decode("utf-8", "replace")
-    names = sorted({n for n in re.findall(r'href="([^"?/]+)"', listing) if NAME.match(n)})
+    names = sorted({n for n in re.findall(r'href="([^"?/]+)"', listing) if NAME.match(n) and not DROP.match(n)})
     if not names:
         sys.exit("no Tidewatch files found in the listing")
     stations, failed = {}, []
     os.makedirs(os.path.join(raw, "f36"), exist_ok=True)
-    for n in sorted({n for n in re.findall(r'href="([^"?/]+)"', listing) if PICKLE.match(n)}):
+    for n in sorted({n for n in re.findall(r'href="([^"?/]+)"', listing) if PICKLE.match(n) and not DROP.match(n)}):
         try:
             with open(os.path.join(raw, "f36", n), "wb") as f:
                 f.write(get(TIDEWATCH_URL + n))
