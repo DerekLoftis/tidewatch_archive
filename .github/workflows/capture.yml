@@ -3,12 +3,11 @@
 # stand-in stations (nwps_capture.py). All three sources keep about 30 days, so a missed run loses
 # nothing. The monthly CSVs are committed under tidewatch_site/ (floodvision/, greenstream/, nwps/);
 # the site build publishes floodvision/ and greenstream/ as obs/ on the public site for StormSense.
+# cron-job.org dispatches it at :05 past 00, 06, 12 and 18 UTC.
 name: Capture USLN-X, CNRC and NWPS stand-ins
 
 on:
-  schedule:
-    - cron: "50 5,11,17,23 * * *"
-    - cron: "5 0,6,12,18 * * *"
+  # run by cron-job.org (dispatch at the times in the header); GitHub's own cron ran hours late
   workflow_dispatch:
 
 permissions:
