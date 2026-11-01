@@ -1,0 +1,2 @@
+cycle,fetched_utc,job,file,url,http_status,bytes,sha256,last_modified,status,note,station,datum,first_time,last_time
+2026-11-01T00Z,2026-11-01T00:08:59+00:00,models,models/_runs/2026/11/2026-11-01T00Z/models.txt,,,22,76990feaa7ef700afdba7fe3a2241085c895c8bed48eaa361436358b282b92ed,,ok,,,,,
