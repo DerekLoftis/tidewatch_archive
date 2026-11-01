@@ -1,0 +1,2 @@
+cycle,fetched_utc,job,file,url,http_status,bytes,sha256,last_modified,status,note,station,datum,first_time,last_time
+2026-11-01T00Z,2026-11-01T06:08:07+00:00,models:nwm-short-coastal,models/nwm-short-coastal/2026/11/2026-11-01T00Z/nwm.t00z.short_range_coastal.total_water.atlgulf.shef.gz,https://noaa-nwm-pds.s3.amazonaws.com/nwm.20261101/short_range_coastal_atlgulf/nwm.t00z.short_range_coastal.total_water.atlgulf.shef,200,153143,2b0c9296e149c3de71a5fa63bab1cd9d41ce3e75a2c2b96358a5e92ef72cd823,2026-11-01T02:08:41+00:00,ok,,,,,
