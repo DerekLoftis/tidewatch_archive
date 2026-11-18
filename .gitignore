@@ -2,10 +2,9 @@
 data/*
 !data/index/
 !data/status.json
+# observations captured by tidewatch_forecastmodel (USLN-X, CNRC, NWPS stand-ins)
+!data/obs/
 __pycache__/
 .venv/
 packs/
 *.tar.gz
-tidewatch_site/site/
-tidewatch_site/raw/
-tidewatch_site/styled/
