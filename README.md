@@ -105,5 +105,11 @@ code is 1 and `status.json` says which failed.
 The site at https://derekloftis.github.io/tidewatch_latest/ (the Tidewatch
 charts plus the CO-OPS rebuilds, BRDH, USLN-X, CNRC and the NWPS stand-ins) is
 built in the private DerekLoftis/tidewatch_forecastmodel since 2026-11-18,
-together with the USLN-X, CNRC and NWPS captures. This repository keeps the
-forecast archive only, so it can be public.
+The capture code runs there too, but the
+observations it captures stay here, in `data/obs/`:
+
+* `data/obs/floodvision/USLN-X_YYYY-MM.csv`: FloodVISION-AI webcam water level at Little Neck Creek (ft NAVD88)
+* `data/obs/greenstream/CNRC_YYYY-MM.csv`: GreenStream/VDEM sensor at Accokeek Creek, Crow's Nest
+* `data/obs/nwps/<ST>_YYYY-MM.csv`: hourly NWPS stage for the stand-in stations Tidewatch doesn't publish
+
+Every capture since September 2026 is kept; nothing is shortened. This repository holds no model code.
