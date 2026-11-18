@@ -1,0 +1,406 @@
+<meta charset="utf-8">
+<title>__TITLE__</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+/* TideWatch diagnostics: VIMS palette; logo band, control bar, run workbench, month report. */
+:root{
+  --bg:#f4f7f8; --panel:#ffffff; --ink:#1b2a33; --muted:#5b6b78; --line:#d8e0e6; --soft:#eaf0f3;
+  --accent:#16687E; --green:#00533A; --gold:#B6925A; --obs:#1f4fbf; --tw:#16687E; --nws:#c2560c;
+  --good:#1f7a4d; --fair:#a86a00; --poor:#b3261e; --goodbg:#e3f3ea; --fairbg:#fbf0d9; --poorbg:#fbe4e2;
+  --display:Georgia,"Bitstream Charter","Times New Roman",serif;
+  --body:"Segoe UI",-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --mono:Consolas,"Liberation Mono","Courier New",monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#101a20; --panel:#172630; --ink:#e3ebf0; --muted:#93a4b1; --line:#2a3a46; --soft:#1d2e39;
+  --accent:#5cc3dd; --green:#7fc9a8; --gold:#d6b075; --obs:#7aa2ff; --tw:#3fb3c9; --nws:#f08a4b;
+  --good:#5fd197; --fair:#f0b84b; --poor:#ff8a80; --goodbg:#173326; --fairbg:#3a2e14; --poorbg:#3d1d1b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101a20; --panel:#172630; --ink:#e3ebf0; --muted:#93a4b1; --line:#2a3a46; --soft:#1d2e39;
+  --accent:#5cc3dd; --green:#7fc9a8; --gold:#d6b075; --obs:#7aa2ff; --tw:#3fb3c9; --nws:#f08a4b;
+  --good:#5fd197; --fair:#f0b84b; --poor:#ff8a80; --goodbg:#173326; --fairbg:#3a2e14; --poorbg:#3d1d1b; color-scheme:dark}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45}
+.wrap{max-width:1360px;margin:0 auto;padding-block:14px 36px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:14px}
+h1,h2,h3{font-family:var(--display);margin:0;letter-spacing:.01em}
+h1{font-size:28px;font-weight:700}
+h2{font-size:20px;font-weight:600}
+h3{font-size:15px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-family:var(--body)}
+.masthead{display:flex;align-items:center;gap:16px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 18px}
+.masthead .logo{flex:0 0 240px;height:80px;display:flex;align-items:center}
+.masthead .logo.right{justify-content:flex-end}
+.masthead .logo img{max-width:240px;max-height:80px;height:auto;width:auto}
+.masthead .mid{flex:1;text-align:center;min-width:0}
+.sub{color:var(--muted);margin:2px 0 0;font-size:13.5px}
+.controls{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:center}
+.seg{display:flex;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+.seg button{font:inherit;border:0;background:var(--panel);color:var(--ink);padding:5px 14px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+.seg-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-right:6px}
+select,button{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:5px 10px}
+button{cursor:pointer}
+button:focus-visible,select:focus-visible,a:focus-visible,tr:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px}
+.tabs button[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px;min-width:0}
+.mcard .hd{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.mname{display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:600;font-size:17px}
+.sw{width:14px;height:4px;border-radius:2px;display:inline-block}
+.kv{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+.kv div{display:flex;flex-direction:column}
+.kv span:first-child{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.big{font-size:20px}
+.pill{font-family:var(--mono);font-size:12.5px;border-radius:999px;padding:1px 8px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.g{background:var(--goodbg);color:var(--good)}.f{background:var(--fairbg);color:var(--fair)}.p{background:var(--poorbg);color:var(--poor)}.n{background:var(--soft);color:var(--muted)}
+.bench{display:grid;grid-template-columns:minmax(300px,470px) minmax(0,1fr);gap:14px;align-items:stretch}
+@media (max-width:900px){.bench{grid-template-columns:minmax(0,1fr)}.masthead .logo{flex-basis:120px}.masthead .logo img{max-width:120px}.list{min-height:0;max-height:70vh;overflow:auto}.list .inner{position:static;overflow:visible}}
+.list{position:relative;padding:0;min-height:420px}
+.list .inner{position:absolute;inset:0;overflow:auto}
+th[title]{cursor:help}
+th.sort{cursor:pointer;user-select:none}
+th.sort .arr{display:inline-flex;flex-direction:column;vertical-align:-2px;margin-left:2px;line-height:.5;font-size:7px;opacity:.4}
+th.sort .arr span.off{opacity:.35}
+th.sort.on .arr{opacity:1;color:var(--accent)}
+.filters{display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--panel);z-index:2}
+.chip{font-size:13px;padding:3px 10px;border-radius:999px;display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel);cursor:pointer}
+.chip[aria-pressed="false"]{opacity:.5}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{font-weight:600;color:var(--muted);text-align:right;padding:6px 8px;border-bottom:1px solid var(--line);font-size:12px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+.runs th,.runs td{padding-left:5px;padding-right:5px}
+#runTable th{letter-spacing:0}
+td{text-align:right;padding:5px 8px;border-bottom:1px solid var(--soft);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+td.num,th.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.runs tbody tr{cursor:pointer}
+.runs tbody tr:hover{background:var(--soft)}
+.runs tbody tr.sel{background:var(--soft);box-shadow:inset 3px 0 0 var(--accent)}
+.runs tbody tr.stale td{color:var(--muted);font-style:italic}
+.tag{font-size:11px;font-weight:600;letter-spacing:.05em;padding:0 5px;border-radius:3px;color:#fff}
+.dl{display:inline-flex;vertical-align:-3px;color:var(--accent);opacity:.85}
+.dl:hover{opacity:1}
+a.dl[aria-disabled="true"]{color:var(--muted);opacity:.4;pointer-events:none}
+.scroll{overflow-x:auto}
+.charts{display:flex;flex-direction:column;gap:14px;min-width:0}
+.row2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+@media (max-width:1100px){.row2{grid-template-columns:minmax(0,1fr)}}
+.chart{height:420px;min-width:0}
+.chart.sm{height:360px}
+.runhead{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:baseline}
+.note{color:var(--muted);font-size:13px;margin:6px 0 0;max-width:85ch}
+.opts{display:flex;gap:14px;flex-wrap:wrap;font-size:13.5px;color:var(--muted)}
+.opts label{display:flex;gap:5px;align-items:center}
+.cov{display:grid;grid-template-columns:auto repeat(4,1fr);gap:2px;font-size:12px}
+.cov div{padding:3px 4px;border-radius:2px;text-align:center;font-family:var(--mono)}
+.cov .h{color:var(--muted);background:none}
+.cov a{color:inherit;text-decoration:none}
+.cov a:hover{text-decoration:underline}
+.c-ok{background:var(--goodbg);color:var(--good)}.c-stale{background:var(--fairbg);color:var(--fair)}.c-miss{background:var(--soft);color:var(--muted)}
+.disc{font-size:12px;color:var(--muted)}
+.footer{color:var(--muted);font-size:12.5px;text-align:center;border-top:1px solid var(--line);padding-top:10px}
+[hidden]{display:none!important}
+.empty{color:var(--muted);padding:30px;text-align:center}
+</style>
+
+<div class="wrap">
+  <div class="masthead">
+    <div class="logo"><img src="__TW_LOGO__" alt="TideWatch"></div>
+    <div class="mid">
+      <h1>Forecast Diagnostics</h1>
+      <p class="sub" id="subtitle"></p>
+    </div>
+    <div class="logo right"><img src="__VIMS_LOGO__" alt="Virginia Institute of Marine Science"></div>
+  </div>
+
+  <div class="controls">
+    <span><span class="seg-label">Month</span><select id="month"></select></span>
+    <span><span class="seg-label">Year</span><select id="year"></select></span>
+    <span class="seg" role="group" aria-label="Datum"><span hidden></span>
+      <button id="d-MLLW" aria-pressed="true">MLLW</button><button id="d-NAVD" aria-pressed="false">NAVD88</button>
+    </span>
+    <span class="seg" role="group" aria-label="Units">
+      <button id="u-ft" aria-pressed="true">Feet</button><button id="u-m" aria-pressed="false">Meters</button>
+    </span>
+    <span class="tabs" role="group" aria-label="View">
+      <button id="v-runs" aria-pressed="true">Individual Forecasts</button>
+      <button id="v-report" aria-pressed="false">Month Report</button>
+    </span>
+  </div>
+
+  <div class="strip" id="strip"></div>
+
+  <section id="runsView" class="bench">
+    <div class="card list"><div class="inner">
+      <div class="filters" id="filters"></div>
+      <table class="runs" id="runTable"><thead><tr><th class="sort" data-key="issued">Issued (UTC)<span class="arr"></span></th><th></th><th>Model</th><th class="sort" data-key="skill">Skill<span class="arr"></span></th><th class="num sort" data-key="rmse">RMSE<span class="arr"></span></th><th class="num sort" data-key="bias">Bias<span class="arr"></span></th><th class="num sort" data-key="peak">Peak<span class="arr"></span></th></tr></thead><tbody></tbody></table>
+    </div></div>
+    <div class="charts">
+      <div class="card">
+        <div class="runhead"><h2 id="runTitle">Select a Forecast</h2><div class="opts">
+          <label for="optOthers"><input type="checkbox" id="optOthers" checked> NWS forecast issued nearest</label>
+          <label for="optTide"><input type="checkbox" id="optTide"> TideWatch tide (pa30)</label>
+        </div></div>
+        <div id="tsChart" class="chart"></div>
+        <p class="disc" id="tsDisc"></p>
+      </div>
+      <div class="row2">
+        <div class="card"><h3>Regression</h3><div id="regChart" class="chart sm"></div></div>
+        <div class="card"><h3>Statistics</h3><div class="scroll" id="statTable"></div>
+          <p class="note">Skill = &frac14;[R&sup2; + e<sup>&minus;|Bias|/&sigma;</sup> + e<sup>&minus;MAE/&sigma;</sup> + e<sup>&minus;RMSE/&sigma;</sup>], &sigma; = population SD of the observations in the window. No-skill &asymp; 0.45. Errors are forecast minus observed.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="reportView" hidden>
+    <div class="charts">
+      <div class="card"><h2 id="repTitle">Month Report</h2><p class="note" id="repLead"></p></div>
+      <div class="card"><h3>Skill of Every Forecast</h3><div id="skillChart" class="chart sm"></div><p class="disc">Click a point to open that forecast.</p></div>
+      <div class="card"><h3>First 6 Hours of Each Forecast, Stitched, Against Observations</h3><div id="stitchChart" class="chart"></div></div>
+      <div class="row2">
+        <div class="card"><h3>Month Means by Lead Time</h3><div class="scroll" id="bandTable"></div></div>
+        <div class="card"><h3>Archive Coverage (00/06/12/18Z)</h3><div id="covGrid"></div><p class="disc" id="covKey"></p></div>
+      </div>
+      <div class="card"><h3 id="repTableTitle">Every Forecast</h3><div class="scroll" id="repTable"></div></div>
+    </div>
+  </section>
+
+  <p class="footer">Disclaimer: Tidewatch Charts&trade; are automated storm tide forecasts; User assumes all risk.<br>
+  Virginia Institute of Marine Science | William &amp; Mary | Forecasts scored against the gauge's own observations.</p>
+</div>
+
+<script>__HIGHCHARTS__</script>
+<script>
+window.DIAG = __DATA__;
+</script>
+<script>
+(function(){
+const MODELS={TW:{name:"TideWatch f36",v:"--tw"},NWS:{name:"NWS official",v:"--nws"}};
+const DLSVG='<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v8m0 0l-3.2-3.2M8 10l3.2-3.2M2.5 13.5h11"/></svg>';
+const state={month:null,data:null,sel:null,show:{TW:true,NWS:true},view:"runs",datum:"MLLW",units:"ft",sort:{key:"issued",dir:1}};
+const $=id=>document.getElementById(id);
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const fmt=(v,n=2)=>v==null||!isFinite(v)?"–":(+v).toFixed(n);
+const sgn=(v,n=2)=>v==null||!isFinite(v)?"–":(v>0?"+":"")+(+v).toFixed(n);
+const cls=s=>s==null?"n":s>=0.8?"g":s>=0.65?"f":"p";
+const pill=s=>`<span class="pill ${cls(s)}">${fmt(s,3)}</span>`;
+const isoShort=s=>s.slice(5,16).replace("T"," ");
+// unit/datum transforms: data is stored in ft MLLW
+const uScale=()=>state.units==="m"?0.3048:1;
+const dOff=()=>state.datum==="NAVD"?(state.data.navd_offset_ft||0):0;
+const conv=v=>v==null?null:(v-dOff())*uScale();      // water levels
+const err=v=>v==null?null:v*uScale();                 // error metrics, sigma
+const eDec=()=>state.units==="m"?3:2;
+const unitLabel=()=>`${state.units==="m"?"m":"ft"} ${state.datum==="NAVD"?"NAVD88":"MLLW"}`;
+function dlIcon(r){
+  if(r.download)return `<a class="dl" href="${r.download}" target="_blank" rel="noopener" title="Download the archived run (GitHub release tarball; needs access to the private tidewatch_archive repo)" onclick="event.stopPropagation()">${DLSVG}</a>`;
+  return `<span class="dl" aria-disabled="true" title="This capture is only in the project archive, not yet in a GitHub release">${DLSVG}</span>`;
+}
+function series(p){if(p.t)return p.t.map((t,i)=>[t,conv(p.v[i])]);return p.v.map((v,i)=>[p.t0+i*p.dt,conv(v)]);}
+let OBS=null;
+function obsMap(){const o=state.data.obs,m=new Map();o.v.forEach((v,i)=>{if(v!=null)m.set(o.t0+i*o.dt,v)});return m}
+function obsAt(t){ // raw ft MLLW; exact 6-min value, else linear between neighbours
+  if(OBS.has(t))return OBS.get(t);const o=state.data.obs,i=Math.floor((t-o.t0)/o.dt);
+  const a=o.v[i],b=o.v[i+1];if(a==null||b==null)return null;const f=(t-(o.t0+i*o.dt))/o.dt;return a+(b-a)*f}
+function themeOpts(){
+  const ink=css("--ink"),muted=css("--muted"),line=css("--line");
+  Highcharts.setOptions({time:{useUTC:true},chart:{backgroundColor:"transparent",style:{fontFamily:css("--body")}},
+    title:{text:null},credits:{enabled:false},
+    xAxis:{labels:{style:{color:muted}},lineColor:line,tickColor:line,gridLineColor:line},
+    yAxis:{labels:{style:{color:muted}},gridLineColor:line,title:{style:{color:muted}}},
+    legend:{itemStyle:{color:ink,fontWeight:"500"},itemHiddenStyle:{color:muted}},
+    tooltip:{backgroundColor:css("--panel"),borderColor:line,style:{color:ink}}});
+}
+function setSeg(group,val){["MLLW","NAVD"].concat(["ft","m"]).forEach(()=>{});
+  if(group==="d"){["MLLW","NAVD"].forEach(k=>$("d-"+k).setAttribute("aria-pressed",k===val))}
+  else{["ft","m"].forEach(k=>$("u-"+k).setAttribute("aria-pressed",k===val))}}
+function redrawAll(){
+  drawStrip();drawList();
+  if(state.view==="report")drawReport();else drawRun();
+}
+function init(){
+  themeOpts();
+  const q=new URLSearchParams(location.search);
+  const h=(location.hash||"").replace("#","").toUpperCase();
+  const d=(q.get("datum")||"").toUpperCase()||((h==="NAVD"||h==="NAVD88")?"NAVD":h==="MLLW"?"MLLW":"");
+  if(d==="NAVD"||d==="NAVD88")state.datum="NAVD";else if(d==="MLLW")state.datum="MLLW";
+  const u=(q.get("units")||"").toLowerCase();
+  if(u==="m"||u==="meters"||u==="metres")state.units="m";
+  setSeg("d",state.datum);setSeg("u",state.units);
+  $("d-MLLW").onclick=()=>{state.datum="MLLW";setSeg("d","MLLW");redrawAll()};
+  $("d-NAVD").onclick=()=>{state.datum="NAVD";setSeg("d","NAVD");redrawAll()};
+  $("u-ft").onclick=()=>{state.units="ft";setSeg("u","ft");redrawAll()};
+  $("u-m").onclick=()=>{state.units="m";setSeg("u","m");redrawAll()};
+  const months=Object.keys(DIAG.months).sort();
+  const monthLabel=m=>new Date(m+"-15").toLocaleString("en-US",{month:"long",timeZone:"UTC"});
+  const years=[...new Set(months.map(m=>m.slice(0,4)))];
+  $("year").innerHTML=years.map(y=>`<option value="${y}">${y}</option>`).join("");
+  const fillMonths=(y,pick)=>{const ms=months.filter(m=>m.slice(0,4)===y);
+    $("month").innerHTML=ms.map(m=>`<option value="${m}">${monthLabel(m)}</option>`).join("");
+    $("month").value=pick&&ms.includes(pick)?pick:ms[ms.length-1]};
+  const last=months[months.length-1];
+  $("year").value=last.slice(0,4);fillMonths(last.slice(0,4),last);
+  $("year").onchange=()=>{fillMonths($("year").value);loadMonth($("month").value)};
+  $("month").onchange=()=>loadMonth($("month").value);
+  document.querySelectorAll("#runTable th.sort").forEach(th=>th.onclick=()=>{const k=th.dataset.key;
+    if(state.sort.key===k)state.sort.dir*=-1;else state.sort={key:k,dir:k==="issued"?1:-1};drawList()});
+  $("v-runs").onclick=()=>setView("runs");$("v-report").onclick=()=>setView("report");
+  $("optOthers").onchange=drawRun;$("optTide").onchange=drawRun;
+  loadMonth($("month").value);
+}
+function loadMonth(m){
+  state.month=m;state.data=DIAG.months[m].station;OBS=obsMap();
+  const d=state.data;
+  $("subtitle").textContent=`${d.name} | ${$("month").selectedOptions[0].textContent} ${m.slice(0,4)} | Built ${DIAG.months[m].built_utc}`;
+  drawFilters();
+  const tw=d.runs.filter(r=>r.model==="TW"&&!r.stale&&r.stats.Skill!=null);
+  const first=d.runs.filter(r=>r.stats.Skill!=null).sort((a,b)=>a.issued<b.issued?-1:1)[0]||d.runs[0];
+  state.sel=first?first.id:null;
+  redrawAll();
+}
+function drawStrip(){
+  const d=state.data;
+  $("strip").innerHTML=Object.keys(MODELS).filter(k=>d.summary[k]).map(k=>{
+    const s=d.summary[k];
+    return `<div class="card mcard"><div class="hd"><span class="mname"><span class="sw" style="background:var(${MODELS[k].v})"></span>${MODELS[k].name}</span>${pill(s.Skill)}</div>
+    <div class="kv"><div><span>Forecasts</span><span class="num big">${s.runs}</span></div><div><span>RMSE ${state.units}</span><span class="num big">${fmt(err(s.RMSE),eDec())}</span></div><div><span>Bias ${state.units}</span><span class="num big">${sgn(err(s.Bias),eDec())}</span></div><div><span>R&sup2;</span><span class="num big">${fmt(s.R2)}</span></div></div>
+    <p class="note">Mean over each forecast's ${k==="TW"?"36":"72"} h. Peak height error ${sgn(err(s.PeakError),eDec())} ${state.units}, timing ${sgn(s.PeakTimeError_h,1)} h.</p></div>`}).join("");
+}
+function drawFilters(){
+  const d=state.data;
+  $("filters").innerHTML=Object.keys(MODELS).filter(k=>d.runs.some(r=>r.model===k)).map(k=>`<button class="chip" data-m="${k}" aria-pressed="${state.show[k]}" title="${MODELS[k].name}: ${d.runs.filter(r=>r.model===k).length} forecasts archived this month. Click to show or hide this source in the table."><span class="sw" style="background:var(${MODELS[k].v})"></span>${MODELS[k].name} (${d.runs.filter(r=>r.model===k).length})</button>`).join("");
+  $("filters").querySelectorAll("button").forEach(b=>b.onclick=()=>{state.show[b.dataset.m]=!state.show[b.dataset.m];b.setAttribute("aria-pressed",state.show[b.dataset.m]);drawList()});
+}
+function drawList(){
+  const KEYS={issued:r=>r.issued,skill:r=>r.stats.Skill,rmse:r=>r.stats.RMSE,bias:r=>r.stats.Bias,peak:r=>r.stats.PeakError};
+  const k=state.sort.key,dir=state.sort.dir,get=KEYS[k];
+  document.querySelectorAll("#runTable th.sort").forEach(th=>{const on=th.dataset.key===k;
+    th.classList.toggle("on",on);th.querySelector(".arr").innerHTML=`<span class="${on&&dir>0?"":"off"}">\u25b2</span><span class="${on&&dir<0?"":"off"}">\u25bc</span>`});
+  const rows=state.data.runs.filter(r=>state.show[r.model]).sort((a,b)=>{
+    const va=get(a),vb=get(b);
+    if(va==null&&vb==null)return a.issued<b.issued?-1:1;
+    if(va==null)return 1;if(vb==null)return -1;
+    const c=typeof va==="string"?(va<vb?-1:va>vb?1:0):va-vb;
+    return c?c*dir:(a.issued<b.issued?-1:a.issued>b.issued?1:a.model<b.model?-1:1)});
+  $("runTable").querySelector("tbody").innerHTML=rows.map(r=>`<tr data-id="${r.id}" tabindex="0" class="${r.id===state.sel?"sel":""} ${r.stale?"stale":""}"><td class="num">${isoShort(r.issued)}${r.stale?" stale":""}</td><td>${dlIcon(r)}</td><td><span class="tag" style="background:var(${MODELS[r.model].v})">${r.model}</span></td><td>${pill(r.stats.Skill)}</td><td class="num">${fmt(err(r.stats.RMSE),eDec())}</td><td class="num">${sgn(err(r.stats.Bias),eDec())}</td><td class="num">${sgn(err(r.stats.PeakError),eDec())}</td></tr>`).join("")||`<tr><td colspan="7" class="empty">No forecasts for the chosen models.</td></tr>`;
+  $("runTable").querySelectorAll("tbody tr[data-id]").forEach(tr=>{
+    const go=()=>{state.sel=tr.dataset.id;$("runTable").querySelectorAll("tr.sel").forEach(x=>x.classList.remove("sel"));tr.classList.add("sel");drawRun()};
+    tr.onclick=go;tr.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}}});
+}
+function run(id){return state.data.runs.find(r=>r.id===id)}
+function nearest(model,issued){
+  let best=null;const t=Date.parse(issued.replace("Z",":00Z"));
+  for(const r of state.data.runs){if(r.model!==model||r.stale)continue;const ti=Date.parse(r.issued.replace("Z",":00Z"));if(ti<=t+3600e3&&(!best||ti>best.t))best={r,t:ti}}
+  return best&&t-best.t<36*3600e3?best.r:null;
+}
+function levelLines(){
+  const L=state.data.levels;if(!L)return[];
+  const muted=css("--muted");
+  return ["action","minor","moderate","major"].filter(k=>L[k]!=null).map(k=>({value:conv(L[k]),color:muted,dashStyle:"ShortDash",width:1,zIndex:2,label:{text:`${k[0].toUpperCase()+k.slice(1)} ${conv(L[k]).toFixed(2)}`,align:"right",x:-4,style:{color:muted,fontSize:"11px"}}}));
+}
+function drawRun(){
+  const r=run(state.sel);
+  if(!r){$("runTitle").textContent="Select a Forecast";return}
+  $("tsDisc").textContent=`Water level in ${unitLabel()}, times in UTC. Click a legend entry to hide or show a line.`;
+  const fc=series(r.fc);const t0=fc[0][0],t1=fc[fc.length-1][0];
+  const lo=t0-12*3600e3;
+  const o=state.data.obs;const ob=[];
+  for(let i=0;i<o.v.length;i++){const t=o.t0+i*o.dt;if(t>=lo&&t<=t1)ob.push([t,conv(o.v[i])])}
+  $("runTitle").innerHTML=`${MODELS[r.model].name}, issued ${isoShort(r.issued)} UTC ${r.stale?'<span class="pill f">stale: repeats an earlier run</span>':""} ${pill(r.stats.Skill)} ${dlIcon(r)}`;
+  const S=[{name:"Observed",data:ob,color:css("--obs"),lineWidth:1.6,zIndex:3,marker:{enabled:false}},
+    {name:MODELS[r.model].name+" "+isoShort(r.issued),data:fc,color:css(MODELS[r.model].v),lineWidth:2.6,zIndex:4,marker:{enabled:r.model!=="TW",radius:2}}];
+  if(r.tide)S.push({name:"TideWatch residual",data:r.tide.map((v,i)=>{const f=r.fc.v[i];return [fc[i][0],v==null||f==null?null:err(f-v)]}),color:css("--green"),dashStyle:"Dash",lineWidth:1.4,zIndex:2,marker:{enabled:false},tooltip:{valueSuffix:" "+state.units+" (residual)"}});
+  if(r.tide&&$("optTide").checked)S.push({name:"TideWatch tide (pa30)",data:r.tide.map((v,i)=>[fc[i][0],conv(v)]),color:css("--tw"),dashStyle:"Dot",lineWidth:1.3,marker:{enabled:false}});
+  if($("optOthers").checked)for(const k of Object.keys(MODELS)){if(k===r.model)continue;const n=nearest(k,r.issued);if(n)S.push({name:`${MODELS[k].name} ${isoShort(n.issued)}`,data:series(n.fc).filter(p=>p[0]>=lo&&p[0]<=t1),color:css(MODELS[k].v),dashStyle:"ShortDash",lineWidth:1.4,marker:{enabled:false},opacity:.85})}
+  Highcharts.chart("tsChart",{chart:{zoomType:"x"},series:S,
+    xAxis:{type:"datetime",plotLines:[{value:t0,color:css("--muted"),width:1,label:{text:"issued",rotation:0,y:12,x:4,style:{color:css("--muted"),fontSize:"11px"}}}],crosshair:true},
+    yAxis:{title:{text:`Water level (${unitLabel()})`},plotLines:levelLines()},
+    tooltip:{shared:true,xDateFormat:"%b %e %H:%M UTC",valueDecimals:2,valueSuffix:" "+state.units},plotOptions:{series:{animation:false,states:{hover:{lineWidthPlus:0}}}}});
+  // regression
+  const W=r.stats.window_h*3600e3,pts=[];
+  for(const [t,v] of (r.fc.t?r.fc.t.map((t,i)=>[t,r.fc.v[i]]):r.fc.v.map((v,i)=>[r.fc.t0+i*r.fc.dt,v]))){
+    if(t-((r.fc.t?r.fc.t[0]:r.fc.t0))>W+1)break;const x=obsAt(t);if(x!=null&&v!=null)pts.push([conv(x),conv(v)])}
+  let mn=Infinity,mx=-Infinity;pts.forEach(p=>{mn=Math.min(mn,p[0],p[1]);mx=Math.max(mx,p[0],p[1])});
+  if(!pts.length){mn=0;mx=1}
+  const pad=(mx-mn)*0.05||0.1;mn-=pad;mx+=pad;
+  const s=r.stats;
+  const reg=[{type:"scatter",name:"Forecast vs observed",data:pts,color:css(MODELS[r.model].v),marker:{radius:2.5,symbol:"circle"},opacity:.7},
+    {type:"line",name:"1:1",data:[[mn,mn],[mx,mx]],color:css("--muted"),dashStyle:"Dash",lineWidth:1,marker:{enabled:false},enableMouseTracking:false}];
+  if(s.Slope!=null){ // y = a x + b in ft MLLW; same slope in any datum or unit, intercept converted
+    const a=s.Slope,b=s.Intercept;const f=x=>conv(a*((x/uScale())+dOff())+b);
+    const b2=(b+dOff()*(a-1))*uScale();
+    reg.push({type:"line",name:`Fit y = ${a.toFixed(2)}x ${b2>=0?"+":"−"} ${Math.abs(b2).toFixed(2)}`,data:[[mn,f(mn)],[mx,f(mx)]],color:css("--ink"),lineWidth:1.4,marker:{enabled:false},enableMouseTracking:false});}
+  Highcharts.chart("regChart",{series:reg,xAxis:{min:mn,max:mx,title:{text:`Observed (${unitLabel()})`},gridLineWidth:1},yAxis:{min:mn,max:mx,title:{text:`Forecast (${unitLabel()})`}},
+    tooltip:{pointFormat:`obs {point.x:.2f}, forecast {point.y:.2f} ${state.units}`},plotOptions:{series:{animation:false}},legend:{itemStyle:{fontSize:"12px"}}});
+  // stats
+  const rows=[["Whole forecast ("+s.window_h+" h)",s]].concat(Object.entries(s.bands||{}).map(([k,v])=>[k+" h",v]));
+  const u=state.units,D=eDec();
+  $("statTable").innerHTML=`<table><thead><tr><th>Window</th><th class="num">N</th><th>Skill</th><th class="num">R&sup2;</th><th class="num">Bias ${u}</th><th class="num">MAE ${u}</th><th class="num">RMSE ${u}</th></tr></thead><tbody>${rows.map(([n,v])=>`<tr><td>${n}</td><td class="num">${v.N??"–"}</td><td>${pill(v.Skill)}</td><td class="num">${fmt(v.R2,3)}</td><td class="num">${sgn(err(v.Bias),D)}</td><td class="num">${fmt(err(v.MAE),D)}</td><td class="num">${fmt(err(v.RMSE),D)}</td></tr>`).join("")}</tbody></table>
+  <table style="margin-top:10px"><tbody>
+  <tr><td>Peak observed / forecast</td><td class="num">${fmt(conv(s.PeakObs))} / ${fmt(conv(s.PeakFc))} ${unitLabel()}</td></tr>
+  <tr><td>Peak height error</td><td class="num">${sgn(err(s.PeakError),D)} ${u}</td></tr>
+  <tr><td>Peak timing error</td><td class="num">${sgn(s.PeakTimeError_h,1)} h</td></tr>
+  <tr><td>&sigma; (SD of obs)</td><td class="num">${fmt(err(s.SDobs),3)} ${u}</td></tr>
+  <tr><td>Observations matched</td><td class="num">${Math.round((s.coverage||0)*100)}%</td></tr>
+  <tr><td>Archived run</td><td class="num">${r.source||"–"} ${r.download?dlIcon(r):""}</td></tr></tbody></table>`;
+}
+function setView(v){state.view=v;$("v-runs").setAttribute("aria-pressed",v==="runs");$("v-report").setAttribute("aria-pressed",v==="report");$("runsView").hidden=v!=="runs";$("reportView").hidden=v!=="report";if(v==="report")drawReport();else drawRun()}
+function drawReport(){
+  const d=state.data,main=d.summary.TW?"TW":Object.keys(d.summary)[0];
+  const mname=$("month").selectedOptions[0].textContent;
+  $("repTitle").textContent=`${d.station} | ${mname} ${state.month.slice(0,4)} Accuracy Report`;
+  const s=d.summary[main];
+  if(!s){$("repLead").textContent="No scored forecasts this month.";return}
+  const u=state.units,D=eDec();
+  const best=run(s.best),worst=run(s.worst);
+  const others=Object.keys(d.summary).filter(k=>k!==main).map(k=>`${MODELS[k].name} ${fmt(d.summary[k].Skill,3)} (RMSE ${fmt(err(d.summary[k].RMSE),D)} ${u}, ${d.summary[k].runs} forecasts)`).join("; ");
+  $("repLead").textContent=`${s.runs} ${MODELS[main].name} forecasts scored: mean skill ${fmt(s.Skill,3)}, RMSE ${fmt(err(s.RMSE),D)} ${u}, bias ${sgn(err(s.Bias),D)} ${u}. Best ${isoShort(best.issued)} (${fmt(best.stats.Skill,3)}), worst ${isoShort(worst.issued)} (${fmt(worst.stats.Skill,3)}).${others?" Other guidance over its own window: "+others+".":""} Stale runs are listed but left out of the means.`;
+  const S=Object.keys(MODELS).filter(k=>d.runs.some(r=>r.model===k)).map(k=>({name:MODELS[k].name,color:css(MODELS[k].v),data:d.runs.filter(r=>r.model===k&&r.stats.Skill!=null&&!r.stale).map(r=>({x:Date.parse(r.issued.replace("Z",":00Z")),y:r.stats.Skill,id:r.id})),lineWidth:1.2,marker:{radius:3,enabled:true}}));
+  const mm=d.runs.filter(r=>r.model==="TW"&&!r.stale).sort((a,b)=>a.issued<b.issued?-1:1);
+  if(mm.some(r=>r.d24!=null))S.push({name:"d24 (24-h mean at issuance)",yAxis:1,visible:false,color:css("--gold"),lineWidth:1.6,marker:{radius:2,enabled:true},data:mm.filter(r=>r.d24!=null).map(r=>({x:Date.parse(r.issued.replace("Z",":00Z")),y:conv(r.d24)})),tooltip:{valueDecimals:2,valueSuffix:" "+state.units},zIndex:1});
+  if(mm.some(r=>r.m30!=null))S.push({name:"m30 (30-day mean at issuance)",yAxis:1,visible:false,color:css("--tw"),dashStyle:"ShortDash",lineWidth:1.6,marker:{enabled:false},data:mm.filter(r=>r.m30!=null).map(r=>({x:Date.parse(r.issued.replace("Z",":00Z")),y:conv(r.m30)})),tooltip:{valueDecimals:2,valueSuffix:" "+state.units},zIndex:1});
+  Highcharts.chart("skillChart",{series:S,xAxis:{type:"datetime"},
+    yAxis:[{title:{text:"Skill"},max:1,plotBands:[{from:0,to:0.45,color:"rgba(128,128,128,.08)",label:{text:"no skill ≈ 0.45",align:"left",style:{color:css("--muted"),fontSize:"11px"}}}]},
+      {title:{text:`Mean water level (${unitLabel()})`},opposite:true,gridLineWidth:0,showEmpty:false}],
+    tooltip:{xDateFormat:"%b %e %H:%M UTC",valueDecimals:3},plotOptions:{series:{animation:false,cursor:"pointer",point:{events:{click(){if(this.options.id){state.sel=this.options.id;setView("runs");drawList()}}}}}}});
+  const o=state.data.obs,mo=state.month,ms0=Date.parse(mo+"-01T00:00:00Z");const ms1=Date.UTC(+mo.slice(0,4),+mo.slice(5,7),1);
+  const ob=[];for(let i=0;i<o.v.length;i++){const t=o.t0+i*o.dt;if(t>=ms0&&t<ms1)ob.push([t,conv(o.v[i])])}
+  const st=[{name:"Observed",data:ob,color:css("--obs"),lineWidth:1.2,marker:{enabled:false}}];
+  for(const k of Object.keys(MODELS)){const rs=d.runs.filter(r=>r.model===k&&!r.stale);if(!rs.length)continue;const pts=[];
+    rs.forEach((r,i)=>{const f=series(r.fc),t0=f[0][0];const next=rs[i+1]?Date.parse(rs[i+1].issued.replace("Z",":00Z")):t0+6*3600e3;f.forEach(p=>{if(p[0]<Math.min(next,t0+6*3600e3))pts.push(p)});pts.push([pts.length?pts[pts.length-1][0]+1:t0,null])});
+    st.push({name:MODELS[k].name+" (0–6 h)",data:pts,color:css(MODELS[k].v),lineWidth:1.6,marker:{enabled:false}})}
+  Highcharts.chart("stitchChart",{chart:{zoomType:"x"},series:st,xAxis:{type:"datetime",min:ms0,max:ms1},yAxis:{title:{text:`Water level (${unitLabel()})`},plotLines:levelLines()},tooltip:{shared:true,xDateFormat:"%b %e %H:%M UTC",valueDecimals:2,valueSuffix:" "+state.units},plotOptions:{series:{animation:false,turboThreshold:0}}});
+  $("bandTable").innerHTML=Object.keys(d.summary).map(k=>{const b=d.summary[k].bands;return `<table style="margin-bottom:12px"><thead><tr><th>${MODELS[k].name}</th><th>Skill</th><th class="num">Bias ${u}</th><th class="num">MAE ${u}</th><th class="num">RMSE ${u}</th></tr></thead><tbody>${Object.entries(b).map(([n,v])=>`<tr><td>${n} h</td><td>${pill(v.Skill)}</td><td class="num">${sgn(err(v.Bias),D)}</td><td class="num">${fmt(err(v.MAE),D)}</td><td class="num">${fmt(err(v.RMSE),D)}</td></tr>`).join("")}</tbody></table>`}).join("");
+  // coverage grid with TideWatch download links
+  const cov=DIAG.months[state.month].coverage;
+  const bySlot={};d.runs.forEach(r=>{if(r.model==="TW")bySlot[r.slot]=r});
+  if(cov){const days={};cov.forEach(c=>{const day=+c.slot.slice(8,10);(days[day]=days[day]||[]).push(c)});
+    let h=`<div class="cov"><div class="h"></div><div class="h">00Z</div><div class="h">06Z</div><div class="h">12Z</div><div class="h">18Z</div>`;
+    for(const day of Object.keys(days).sort((a,b)=>a-b)){h+=`<div class="h">${day}</div>`;days[day].forEach(c=>{const tw=c.tw;let k="c-miss",t="";
+      const rr=bySlot[c.slot.slice(0,13)+"Z"];
+      if(tw){if(tw.state==="ok"){k="c-ok";t="TideWatch"+(tw.ontime?"":" "+tw.run+"Z")}else if(tw.state==="stale"){k="c-stale";t="stale"}}
+      if(rr&&t&&rr.download)t=`<a href="${rr.download}" target="_blank" rel="noopener" title="Download this run's archive tarball">${t} ${DLSVG}</a>`;
+      else if(rr&&t)t+=` <span class="dl" aria-disabled="true" title="project archive only">${DLSVG}</span>`;
+      h+=`<div class="${k}">${t}</div>`})}
+    $("covGrid").innerHTML=h+"</div>";
+    $("covKey").textContent="TideWatch f36 by cycle: hour shown when the fresh run arrived late; stale = Tidewatch published nothing new; blank = not archived. The download icon fetches that run's tarball from the GitHub archive.";
+  }else{$("covGrid").innerHTML='<p class="note">No coverage table for this month.</p>';$("covKey").textContent=""}
+  const rs=d.runs.filter(r=>r.model===main);
+  const bk=Object.keys(s.bands);
+  $("repTableTitle").textContent=`Every ${MODELS[main].name} Forecast`;
+  const xtr=v=>v.PeakError==null||v.PeakTimeError_h==null||!v.SDobs?null:Math.abs(v.PeakError)/v.SDobs+Math.abs(v.PeakTimeError_h)/12;
+  const TIP={Skill:"Skill = \u00bc[R\u00b2 + e^\u2212|Bias|/\u03c3 + e^\u2212MAE/\u03c3 + e^\u2212RMSE/\u03c3]; 1 is perfect, \u22480.45 is no skill.",
+    R2:"Squared correlation between forecast and observed; 1 means they rise and fall together.",
+    Bias:"Mean of forecast minus observed over the window; positive = forecast runs high.",
+    MAE:"Mean absolute error: the average size of the miss, all hours weighted equally.",
+    RMSE:"Root-mean-square error: like MAE but penalizing the largest misses more."};
+  $("repTable").innerHTML=`<table class="runs"><thead><tr><th>Issued (UTC)</th><th></th><th>Cycle</th><th title="${TIP.Skill}">Skill</th><th class="num" title="${TIP.R2}">R&sup2;</th><th class="num" title="${TIP.Bias}">Bias</th><th class="num" title="${TIP.MAE}">MAE</th><th class="num" title="${TIP.RMSE}">RMSE</th>${bk.map(b=>`<th class="num" title="Root-mean-square error over forecast hours ${b} only.">RMSE ${b} h</th>`).join("")}<th class="num" title="Highest forecast minus highest observed in the window">Peak err</th><th class="num" title="Time of highest forecast minus time of highest observed">Peak time</th><th class="num" title="Extremeness of the peak miss: |peak height error|/\u03c3 + |peak timing error|/12 h. 0 is a perfect peak; larger means the forecast missed the event peak by more.">Extreme</th></tr></thead><tbody>${rs.map(r=>{const v=r.stats;return `<tr data-id="${r.id}" tabindex="0" class="${r.stale?"stale":""}"><td class="num">${isoShort(r.issued)}${r.stale?" stale":""}</td><td>${dlIcon(r)}</td><td class="num">${r.slot.slice(8,13).replace("T"," ")}</td><td>${pill(v.Skill)}</td><td class="num">${fmt(v.R2,3)}</td><td class="num">${sgn(err(v.Bias),D)}</td><td class="num">${fmt(err(v.MAE),D)}</td><td class="num">${fmt(err(v.RMSE),D)}</td>${bk.map(b=>`<td class="num">${fmt(err((v.bands[b]||{}).RMSE),D)}</td>`).join("")}<td class="num">${sgn(err(v.PeakError),D)}</td><td class="num">${sgn(v.PeakTimeError_h,1)} h</td><td class="num">${fmt(xtr(v),2)}</td></tr>`}).join("")}</tbody></table>`;
+  $("repTable").querySelectorAll("tr[data-id]").forEach(tr=>{const go=()=>{state.sel=tr.dataset.id;setView("runs");drawList()};tr.onclick=go;tr.onkeydown=e=>{if(e.key==="Enter")go()}});
+}
+const mq=window.matchMedia("(prefers-color-scheme: dark)");
+const redraw=()=>{themeOpts();if(state.data)redrawAll()};
+try{mq.addEventListener("change",redraw)}catch(e){}
+new MutationObserver(redraw).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+init();
+})();
+</script>

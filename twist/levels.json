@@ -1,0 +1,121 @@
+{
+"BISH": {
+"action": 3.0,
+"minor": 3.2,
+"moderate": 3.7,
+"major": 4.2
+},
+"DAHL": {
+"action": 3.0,
+"minor": 3.5,
+"moderate": 5.0,
+"major": 7.0
+},
+"KIPT": {
+"action": 4.0,
+"minor": 4.5,
+"moderate": 5.0,
+"major": 5.5
+},
+"LEWI": {
+"action": 2.5,
+"minor": 3.0,
+"moderate": 3.5,
+"major": 4.0
+},
+"SWPT": {
+"action": 4.0,
+"minor": 4.5,
+"moderate": 5.5,
+"major": 6.5
+},
+"USBC": {
+"minor": 5.5,
+"moderate": 6.5,
+"major": 7.5
+},
+"USFM": {
+"action": 4.0,
+"minor": 4.5,
+"moderate": 5.5,
+"major": 6.5
+},
+"USHR": {
+"action": 4.0,
+"minor": 4.5,
+"moderate": 5.5,
+"major": 6.5
+},
+"USJT": {
+"action": 3.5,
+"minor": 4.0,
+"moderate": 4.5,
+"major": 5.0
+},
+"USLB": {
+"action": 5.65,
+"minor": 6.65,
+"moderate": 7.65,
+"major": 8.65
+},
+"USLN": {
+"action": 3.25,
+"minor": 4.0,
+"moderate": 4.5,
+"major": 6.0
+},
+"USLR": {
+"action": 5.75,
+"minor": 7.75,
+"moderate": 8.75,
+"major": 11.25
+},
+"USPA": {
+"action": 5.8,
+"minor": 6.3,
+"moderate": 7.3,
+"major": 8.3
+},
+"USPT": {
+"action": 4.5,
+"minor": 5.0,
+"moderate": 6.0,
+"major": 7.0
+},
+"USSF": {
+"action": 5.0,
+"minor": 5.5,
+"moderate": 7.0,
+"major": 8.0
+},
+"USTC": {
+"action": 5.2,
+"minor": 5.7,
+"moderate": 6.7,
+"major": 7.7
+},
+"WACH": {
+"action": 6.0,
+"minor": 6.5,
+"moderate": 7.5,
+"major": 8.0
+},
+"WADC": {
+"action": 4.2,
+"minor": 5.3,
+"moderate": 6.5,
+"major": 7.0
+},
+"WMPT": {
+"action": 2.5,
+"minor": 3.0,
+"moderate": 3.5,
+"major": 4.0
+},
+"YRCG": {
+"action": 4.0,
+"minor": 4.5,
+"moderate": 5.0,
+"major": 5.5
+}
+}
