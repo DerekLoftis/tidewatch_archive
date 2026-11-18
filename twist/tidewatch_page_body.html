@@ -254,7 +254,7 @@ function loadMonth(m){
   $("subtitle").textContent=`${d.name} | ${$("month").selectedOptions[0].textContent} ${m.slice(0,4)} | Built ${DIAG.months[m].built_utc}`;
   drawFilters();
   const tw=d.runs.filter(r=>r.model==="TW"&&!r.stale&&r.stats.Skill!=null);
-  const first=(d.summary.TW&&d.runs.find(r=>r.id===d.summary.TW.worst))||d.runs.find(r=>r.stats.Skill!=null);
+  const first=d.runs.filter(r=>r.stats.Skill!=null).sort((a,b)=>a.issued<b.issued?-1:1)[0]||d.runs[0];
   state.sel=first?first.id:null;
   redrawAll();
 }

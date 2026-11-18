@@ -132,8 +132,11 @@
   "nws_off": 0.0
  },
  "USSB": {
+  "lid": "NSWV2",
   "name": "USSB",
-  "navd": 1.302
+  "navd": 1.302,
+  "nws_off": 0.0,
+  "obs_nwps": "prefer"
  },
  "USSC": {
   "lid": "SAXV2",
