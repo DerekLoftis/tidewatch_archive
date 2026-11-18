@@ -100,18 +100,10 @@ code is 1 and `status.json` says which failed.
 * Tidewatch updates the f36 files hourly (each starts at :36 past the previous
   hour), so a 6-hourly archive keeps one forecast in six.
 
-## The public Tidewatch latest site (`tidewatch_site/`)
+## The public Tidewatch latest site
 
-The site at https://derekloftis.github.io/tidewatch_latest/ is built here and
-only published from the public DerekLoftis/tidewatch_latest, which holds no
-code. See `tidewatch_site/README.md`. Two workflows:
-
-* `.github/workflows/tidewatch_site.yml` (dispatched by cron-job.org at 00:20, 06:20, 12:20, 18:20 UTC):
-  builds the site and pushes it to tidewatch_latest's `site` branch, then sends
-  it a `publish` repository_dispatch, which deploys GitHub Pages. Needs the
-  `TIDEWATCH_PUBLISH_TOKEN` secret (fine-grained token, Contents read and write
-  on tidewatch_latest).
-* `.github/workflows/capture.yml` (dispatched by cron-job.org at :05 past each cycle):
-  captures USLN-X (FloodVISION-AI), CNRC (GreenStream) and the NWPS stand-in
-  gauges into `tidewatch_site/floodvision/`, `greenstream/` and `nwps/`, and
-  commits them here.
+The site at https://derekloftis.github.io/tidewatch_latest/ (the Tidewatch
+charts plus the CO-OPS rebuilds, BRDH, USLN-X, CNRC and the NWPS stand-ins) is
+built in the private DerekLoftis/tidewatch_forecastmodel since 2026-11-18,
+together with the USLN-X, CNRC and NWPS captures. This repository keeps the
+forecast archive only, so it can be public.
