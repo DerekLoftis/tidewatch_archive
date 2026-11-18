@@ -1,6 +1,11 @@
 # TWiST: monthly Tidewatch forecast diagnostics pages (one self-contained
 # twist_<station>.html per station), built from this repo's own archived
-# captures and uploaded to release twist-YYYY-MM.
+# captures. Pages accumulate: each run rebuilds every station's page with all
+# previously built months plus the new one (the month dropdown opens on the
+# newest), and uploads them to the one stable release "twist-pages", so links
+# such as .../releases/download/twist-pages/twist_swpt.html never change.
+# Each month's built data is kept as twist_data_YYYY-MM.tar.gz on release
+# "twist-data", which is what later runs accumulate from.
 #
 # Runs on the 3rd of each month at 00:00 UTC for the month just ended, so the
 # last 36-hour forecasts of the month are fully verified and late-posting
@@ -24,6 +29,11 @@ on:
         description: "Month to build (YYYY-MM); empty = previous month"
         required: false
         default: ""
+      force:
+        description: "Rebuild even if this month's data already exists"
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: write
@@ -45,7 +55,7 @@ jobs:
 
       - run: pip install --quiet numpy pandas
 
-      - name: Skip if this month's release already has pages
+      - name: Skip if this month is already built
         id: skip
         env:
           GH_TOKEN: ${{ github.token }}
@@ -53,25 +63,31 @@ jobs:
           MONTH="${{ github.event.inputs.month }}"
           [ -z "$MONTH" ] && MONTH=$(date -u -d "$(date -u +%Y-%m-01) -1 day" +%Y-%m)
           echo "month=$MONTH" >> "$GITHUB_OUTPUT"
-          if gh release view "twist-$MONTH" -R "$GITHUB_REPOSITORY" --json assets \
-              --jq '.assets[].name' 2>/dev/null | grep -q '^twist_.*\.html$'; then
+          if [ "${{ github.event.inputs.force }}" != "true" ] && \
+             gh release view twist-data -R "$GITHUB_REPOSITORY" --json assets \
+              --jq '.assets[].name' 2>/dev/null | grep -qx "twist_data_$MONTH.tar.gz"; then
             echo "already built"; echo "done=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Build the month
+      - name: Build the month (plus all earlier months on the pages)
         if: steps.skip.outputs.done != 'true'
         env:
           GH_TOKEN: ${{ secrets.TWIST_OBS_TOKEN || github.token }}
         run: python twist/run_month.py --month "${{ steps.skip.outputs.month }}" --work /tmp/twist --out out
 
-      - name: Upload to release twist-${{ steps.skip.outputs.month }}
+      - name: Upload pages and month data
         if: steps.skip.outputs.done != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           MONTH: ${{ steps.skip.outputs.month }}
         run: |
-          gh release view "twist-$MONTH" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1 || \
-            gh release create "twist-$MONTH" -R "$GITHUB_REPOSITORY" \
-              --title "TWiST diagnostics $MONTH" \
-              --notes "Monthly Tidewatch forecast diagnostics pages (TWiST) for $MONTH: one self-contained twist_<station>.html per station, plus a zip of all stations. Open a page in any browser; no network needed."
-          gh release upload "twist-$MONTH" -R "$GITHUB_REPOSITORY" --clobber out/twist_*
+          gh release view twist-data -R "$GITHUB_REPOSITORY" >/dev/null 2>&1 || \
+            gh release create twist-data -R "$GITHUB_REPOSITORY" \
+              --title "TWiST month data" \
+              --notes "Built month data for the TWiST diagnostics pages, one twist_data_YYYY-MM.tar.gz per month. Each monthly run downloads these to rebuild every station's page with all months."
+          gh release upload twist-data -R "$GITHUB_REPOSITORY" --clobber "out/twist_data_$MONTH.tar.gz"
+          gh release view twist-pages -R "$GITHUB_REPOSITORY" >/dev/null 2>&1 || \
+            gh release create twist-pages -R "$GITHUB_REPOSITORY" \
+              --title "TWiST diagnostics pages" \
+              --notes "Tidewatch forecast diagnostics pages (TWiST): one self-contained twist_<station>.html per station with every archived month, plus a zip of all stations. Rebuilt monthly in place, so these download links are stable. Open a page in any browser; no network needed."
+          gh release upload twist-pages -R "$GITHUB_REPOSITORY" --clobber out/twist_*.html out/twist_all_stations.zip

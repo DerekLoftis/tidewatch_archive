@@ -1,168 +1,179 @@
 {
-"BISH": {
-"name": "Chesapeake Bay at Bishops Head",
-"navd": 1.21,
-"lid": "BISM2",
-"nws_off": 0.0
-},
-"DAHL": {
-"name": "Upper Machodoc Creek near Dahlgren",
-"navd": 1.04,
-"lid": "NCDV2",
-"nws_off": 0.0
-},
-"GS01": {
-"name": "Chickahominy River at Mamanahunt",
-"navd": 1.344
-},
-"GS02": {
-"name": "Pamunkey River at Lay Landing Rd",
-"navd": 1.651
-},
-"KIPT": {
-"name": "Chesapeake Bay near Kiptopeke",
-"navd": 1.9,
-"lid": "KPTV2",
-"nws_off": 0.0
-},
-"LEWI": {
-"name": "Potomac River at Lewisetta",
-"navd": 0.83,
-"lid": "LWTV2",
-"nws_off": 0.0
-},
-"SWPT": {
-"name": "James River (VA) at Sewell's Point",
-"navd": 1.61,
-"lid": "SWPV2",
-"nws_off": 0.0
-},
-"USAR": {
-"name": "Little Annemessex at Crisfield, MD",
-"navd": 1.166
-},
-"USBB": {
-"name": "Dawley Corners, Beggars Bridge Creek, Virginia Beach",
-"navd": 1.645
-},
-"USBC": {
-"name": "Elizabeth River at Bailey Creek near Chesapeake VA",
-"navd": 1.827,
-"lid": "BLYV2",
-"nws_off": 0.0
-},
-"USBK": {
-"name": "Brick Kiln Creek near Poquoson",
-"navd": 1.517,
-"lid": "BKNV2",
-"nws_off": 0.0
-},
-"USBM": {
-"name": "USBM",
-"navd": 1.816
-},
-"USCB": {
-"name": "Chincoteague Bay Inlet at Chincoteague, VA",
-"navd": 1.955
-},
-"USFM": {
-"name": "James River (VA) at Fort Monroe",
-"navd": 1.697,
-"lid": "FTMV2",
-"nws_off": 0.0
-},
-"USHR": {
-"name": "Hampton River near Hampton",
-"navd": 1.677,
-"lid": "HMNV2",
-"nws_off": 0.0
-},
-"USJT": {
-"name": "James River (VA) at Jamestown/Scotland Ferry",
-"navd": 1.113,
-"lid": "JSFV2",
-"nws_off": 0.0
-},
-"USLB": {
-"name": "London Bridge Creek at Route 58 in VA Beach",
-"navd": 1.654
-},
-"USLN": {
-"name": "Little Neck Creek at Pinewood Rd in Virginia Beach (MLLW)",
-"navd": 1.372,
-"lid": "LTCV2",
-"nws_off": 0.0
-},
-"USLR": {
-"name": "Lake Rudee near Bells Rd in Virginia Beach (MLLW)",
-"navd": 2.038,
-"lid": "LRBV2",
-"nws_off": 0.0
-},
-"USMB": {
-"name": "USMB",
-"navd": 1.655
-},
-"USNC": {
-"name": "New Market Creek near Hampton",
-"navd": 1.496,
-"lid": "NMCV2",
-"nws_off": 0.0
-},
-"USNR": {
-"name": "Nansemond River at Rte 460 at Suffolk, VA",
-"navd": 1.798
-},
-"USPA": {
-"name": "Elizabeth River at Route 165 in Virginia Beach",
-"navd": 1.797
-},
-"USPT": {
-"name": "Elizabeth River near Pinehurst in Portsmouth",
-"navd": 1.78,
-"lid": "ELZV2",
-"nws_off": 0.0
-},
-"USSB": {
-"name": "USSB",
-"navd": 1.302
-},
-"USSC": {
-"name": "Starling Creek at Port of Saxis at Saxis, VA",
-"navd": 1.414
-},
-"USSF": {
-"name": "Nansemond River at Suffolk",
-"navd": 1.798,
-"lid": "NMDV2",
-"nws_off": 0.0
-},
-"USTC": {
-"name": "Thalia Creek at Route 58 in Thalia",
-"navd": 1.695
-},
-"WACH": {
-"name": "Atlantic Coast at Wachapreague",
-"navd": 2.61,
-"lid": "WAHV2",
-"nws_off": 0.0
-},
-"WADC": {
-"name": "Washington Channel at SW Waterfront",
-"navd": 1.4,
-"lid": "WASD2",
-"nws_off": 0.0
-},
-"WMPT": {
-"name": "Chesapeake Bay at Windmill Point",
-"navd": 1.18,
-"lid": "WNDV2",
-"nws_off": 0.0
-},
-"YRCG": {
-"name": "Chesapeake Bay near Yorktown",
-"navd": 1.53,
-"lid": "YKTV2",
-"nws_off": 0.0
-}
+ "BISH": {
+  "lid": "BISM2",
+  "name": "Chesapeake Bay at Bishops Head",
+  "navd": 1.21,
+  "nws_off": 0.0
+ },
+ "DAHL": {
+  "lid": "NCDV2",
+  "name": "Upper Machodoc Creek near Dahlgren",
+  "navd": 1.04,
+  "nws_off": 0.0
+ },
+ "GS01": {
+  "name": "Chickahominy River at Mamanahunt",
+  "navd": 1.344
+ },
+ "GS02": {
+  "name": "Pamunkey River at Lay Landing Rd",
+  "navd": 1.651
+ },
+ "KIPT": {
+  "lid": "KPTV2",
+  "name": "Chesapeake Bay near Kiptopeke",
+  "navd": 1.9,
+  "nws_off": 0.0
+ },
+ "LEWI": {
+  "lid": "LWTV2",
+  "name": "Potomac River at Lewisetta",
+  "navd": 0.83,
+  "nws_off": 0.0
+ },
+ "SWPT": {
+  "lid": "SWPV2",
+  "name": "James River (VA) at Sewell's Point",
+  "navd": 1.61,
+  "nws_off": 0.0
+ },
+ "USAR": {
+  "lid": "CRSM2",
+  "name": "Little Annemessex at Crisfield, MD",
+  "navd": 1.166,
+  "nws_off": 0.0
+ },
+ "USBB": {
+  "name": "Dawley Corners, Beggars Bridge Creek, Virginia Beach",
+  "navd": 1.645
+ },
+ "USBC": {
+  "lid": "BLYV2",
+  "name": "Elizabeth River at Bailey Creek near Chesapeake VA",
+  "navd": 1.827,
+  "nws_off": 0.0
+ },
+ "USBK": {
+  "lid": "BKNV2",
+  "name": "Brick Kiln Creek near Poquoson",
+  "navd": 1.517,
+  "nws_off": 0.0
+ },
+ "USBM": {
+  "name": "USBM",
+  "navd": 1.816
+ },
+ "USCB": {
+  "lid": "CHIV2",
+  "name": "Chincoteague Bay Inlet at Chincoteague, VA",
+  "navd": 1.955,
+  "nws_off": 0.0,
+  "obs_nwps": "prefer"
+ },
+ "USFM": {
+  "lid": "FTMV2",
+  "name": "James River (VA) at Fort Monroe",
+  "navd": 1.697,
+  "nws_off": 0.0
+ },
+ "USHR": {
+  "lid": "HMNV2",
+  "name": "Hampton River near Hampton",
+  "navd": 1.677,
+  "nws_off": 0.0
+ },
+ "USJT": {
+  "lid": "JSFV2",
+  "name": "James River (VA) at Jamestown/Scotland Ferry",
+  "navd": 1.113,
+  "nws_off": 0.0
+ },
+ "USLB": {
+  "name": "London Bridge Creek at Route 58 in VA Beach",
+  "navd": 1.654
+ },
+ "USLN": {
+  "lid": "LTCV2",
+  "name": "Little Neck Creek at Pinewood Rd in Virginia Beach (MLLW)",
+  "navd": 1.372,
+  "nws_off": 0.0
+ },
+ "USLR": {
+  "lid": "LRBV2",
+  "name": "Lake Rudee near Bells Rd in Virginia Beach (MLLW)",
+  "navd": 2.038,
+  "nws_off": 0.0
+ },
+ "USMB": {
+  "name": "USMB",
+  "navd": 1.655
+ },
+ "USNC": {
+  "lid": "NMCV2",
+  "name": "New Market Creek near Hampton",
+  "navd": 1.496,
+  "nws_off": 0.0
+ },
+ "USNR": {
+  "lid": "NMDV2",
+  "name": "Nansemond River at Rte 460 at Suffolk, VA",
+  "navd": 1.798,
+  "nws_off": 0.0,
+  "obs_nwps": "prefer"
+ },
+ "USPA": {
+  "name": "Elizabeth River at Route 165 in Virginia Beach",
+  "navd": 1.797
+ },
+ "USPT": {
+  "lid": "ELZV2",
+  "name": "Elizabeth River near Pinehurst in Portsmouth",
+  "navd": 1.78,
+  "nws_off": 0.0
+ },
+ "USSB": {
+  "name": "USSB",
+  "navd": 1.302
+ },
+ "USSC": {
+  "lid": "SAXV2",
+  "name": "Starling Creek at Port of Saxis at Saxis, VA",
+  "navd": 1.414,
+  "nws_off": 0.0,
+  "obs_nwps": "prefer"
+ },
+ "USSF": {
+  "lid": "NMDV2",
+  "name": "Nansemond River at Suffolk",
+  "navd": 1.798,
+  "nws_off": 0.0
+ },
+ "USTC": {
+  "name": "Thalia Creek at Route 58 in Thalia",
+  "navd": 1.695
+ },
+ "WACH": {
+  "lid": "WAHV2",
+  "name": "Atlantic Coast at Wachapreague",
+  "navd": 2.61,
+  "nws_off": 0.0
+ },
+ "WADC": {
+  "lid": "WASD2",
+  "name": "Washington Channel at SW Waterfront",
+  "navd": 1.4,
+  "nws_off": 0.0
+ },
+ "WMPT": {
+  "lid": "WNDV2",
+  "name": "Chesapeake Bay at Windmill Point",
+  "navd": 1.18,
+  "nws_off": 0.0
+ },
+ "YRCG": {
+  "lid": "YKTV2",
+  "name": "Chesapeake Bay near Yorktown",
+  "navd": 1.53,
+  "nws_off": 0.0
+ }
 }

@@ -95,9 +95,10 @@ def nwps_obs(lid, captures):
     rows = {}
     for body in captures:
         for p in (body.get("observed") or {}).get("data") or []:
-            if p.get("primary") in (None, -999):
+            v = p.get("primary")
+            if v is None or v <= -99:  # NWPS sentinels: -999, -9999
                 continue
-            rows[T(p["validTime"])] = float(p["primary"])
+            rows[T(p["validTime"])] = float(v)
     s = pd.Series(rows).sort_index()
     s.index = pd.DatetimeIndex(s.index)
     return nws_to_mllw(lid, s)
@@ -184,7 +185,8 @@ def nws_runs(lid, caps, start, end):
         iss = T(fc.get("issuedTime", ""))
         if not iss or iss in seen or not (start <= iss < end):
             continue
-        pts = [p for p in fc.get("data") or [] if p.get("primary") not in (None, -999)]
+        pts = [p for p in fc.get("data") or []
+           if p.get("primary") is not None and p["primary"] > -99]  # drop -999/-9999 sentinels
         if len(pts) < 3:
             continue
         seen.add(iss)
@@ -378,14 +380,20 @@ def main():
         off = meta.get(st, {}).get("nws_off")
         if lid and off is not None and lid not in NWS_TO_MLLW:
             NWS_TO_MLLW[lid] = float(off)
-        if lid and a.nwps and ("NWS" in models or st == "JLMV"):
+        # obs_nwps in --meta: "fill" = the NWPS gauge record fills gaps in our obs
+        # (JLMV: StormSense observes it only from 2026-10-27); "prefer" = the NWPS
+        # record IS the truth (USCB/USSC/USNR: Tidewatch's feed is another gauge's).
+        onw = meta.get(st, {}).get("obs_nwps") or ("fill" if st == "JLMV" else None)
+        if lid and a.nwps and ("NWS" in models or onw):
             caps = nws_captures(lid, a)
             if "NWS" in models:
                 runs += nws_runs(lid, caps, start, end)
-            if st == "JLMV":  # StormSense observes JLMV only from 2026-10-27; NWPS's own record before that
-                no = nwps_obs(lid, [b for _, b in caps])
+            if onw:
+                no = nwps_obs(lid, [b for _, b in caps]).resample("6min").interpolate(limit=10).dropna()
+                if onw == "prefer":
+                    obs = obs[~obs.index.isin(no.index)]
                 no = no[~no.index.isin(obs.index)]
-                obs = pd.concat([obs, no.resample("6min").interpolate(limit=10).dropna()]).sort_index()
+                obs = pd.concat([obs, no]).sort_index()
                 obs = obs[~obs.index.duplicated()]
         if a.fore72 and "SS" in models:
             runs += stormsense_runs(st, a, start, end)

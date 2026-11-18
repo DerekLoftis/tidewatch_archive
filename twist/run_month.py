@@ -4,8 +4,11 @@ Downloads the month's archived captures from this repo's own releases
 (archive-YYYY-MM and project-runs-YYYY-MM run tarballs, plus the first days
 of the next month for the 30-day observation capture and late-month NWPS
 issuances), extracts the Tidewatch f36 CSVs, 30-day observation CSVs and
-NWPS stageflow files, builds data with build_month.py and writes one
-self-contained twist_<station>.html per station plus a zip.
+NWPS stageflow files, builds the month's data with build_month.py, pulls
+every previously built month from release twist-data, and writes one
+self-contained twist_<station>.html per station holding all months (the
+month dropdown opens on the newest), plus a zip and this month's
+twist_data_<month>.tar.gz for release twist-data.
 
 Observations: the gauge records from the StormSense observation archive
 (obs_*.tar.xz on DerekLoftis/StormSense-archive) when GH_TOKEN can read that
@@ -124,6 +127,20 @@ def main():
     else:
         print("observations: Tidewatch 30d records only (no StormSense access)")
 
+    # ---- previously built months (release twist-data), so pages accumulate
+    diag = os.path.join(W, "diag")
+    os.makedirs(diag, exist_ok=True)
+    for aid, name in assets(REPO, "twist-data"):
+        mm = re.match(r"twist_data_(\d{4}-\d{2})\.tar\.gz$", name)
+        if not mm or mm.group(1) == month:
+            continue
+        tar = os.path.join(W, "tars", name)
+        with open(tar, "wb") as f:
+            subprocess.run(["gh", "api", "-H", "Accept: application/octet-stream",
+                            f"/repos/{REPO}/releases/assets/{aid}"], stdout=f, check=True)
+        subprocess.run(["tar", "-xzf", tar, "-C", diag], check=True)
+        os.remove(tar)
+
     # 30d directories: every extracted dir that holds 30d CSVs
     tw30 = sorted({os.path.dirname(p) for p in glob.glob(
         os.path.join(W, "x", "**", "*_2018_30d_MLLW.csv"), recursive=True)})
@@ -142,18 +159,25 @@ def main():
            "--levels", os.path.join(HERE, "levels.json"),
            "--meta", os.path.join(HERE, "stations_meta.json"),
            "--assets", os.path.join(W, "assets.txt"),
-           "--models", "TW,NWS", "--out", os.path.join(W, "diag")]
+           "--models", "TW,NWS", "--out", os.path.join(diag, month)]
     subprocess.run(cmd, check=True, cwd=HERE)
 
+    # the month's built data, published to release twist-data for later months
+    subprocess.run(["tar", "-czf", os.path.join(out, f"twist_data_{month}.tar.gz"),
+                    "-C", diag, month], check=True)
+
+    month_dirs = sorted(d for d in glob.glob(os.path.join(diag, "*"))
+                        if os.path.exists(os.path.join(d, "data", "index.json")))
+    print("months on the pages:", [os.path.basename(d) for d in month_dirs])
     for st in sorted(meta):
         page = os.path.join(out, f"twist_{st.lower().replace('-', '_')}.html")
         subprocess.run([sys.executable, os.path.join(HERE, "make_tidewatch_page.py"),
-                        "--station", st, "--months", os.path.join(W, "diag"),
+                        "--station", st, "--months", *month_dirs,
                         "--highcharts", os.path.join(HERE, "highcharts.js"),
                         "--tw-logo", os.path.join(HERE, "branding", "tidewatch_logo.png"),
                         "--vims-logo", os.path.join(HERE, "branding", "vims_logo.png"),
                         "--out", page], check=True)
-    z = os.path.join(out, f"twist_{month}_all_stations.zip")
+    z = os.path.join(out, "twist_all_stations.zip")
     with zipfile.ZipFile(z, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as zf:
         for p in sorted(glob.glob(os.path.join(out, "twist_*.html"))):
             zf.write(p, os.path.basename(p))

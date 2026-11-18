@@ -37,8 +37,11 @@ def main():
 
     months = {}
     for d in a.months:
+        sf = os.path.join(d, "data", f"{a.station}.json")
+        if not os.path.exists(sf):  # station not built that month
+            continue
         idx = json.load(open(os.path.join(d, "data", "index.json")))
-        st = json.load(open(os.path.join(d, "data", f"{a.station}.json")))
+        st = json.load(open(sf))
         months[idx["month"]] = {"built_utc": idx["built_utc"], "station": st,
                                 "coverage": (idx.get("coverage") or {}).get(a.station)}
     data = json.dumps({"station": a.station, "months": months}, separators=(",", ":"))
