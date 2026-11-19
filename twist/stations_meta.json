@@ -9,7 +9,8 @@
   "lid": "NCDV2",
   "name": "Upper Machodoc Creek near Dahlgren",
   "navd": 1.04,
-  "nws_off": 0.0
+  "nws_off": 0.0,
+  "obs_nwps": "prefer"
  },
  "GS01": {
   "name": "Chickahominy River at Mamanahunt",
@@ -41,7 +42,8 @@
   "lid": "CRSM2",
   "name": "Little Annemessex at Crisfield, MD",
   "navd": 1.166,
-  "nws_off": 0.0
+  "nws_off": 0.0,
+  "obs_nwps": "prefer"
  },
  "USBB": {
   "name": "Dawley Corners, Beggars Bridge Creek, Virginia Beach",
@@ -165,7 +167,8 @@
   "lid": "WASD2",
   "name": "Washington Channel at SW Waterfront",
   "navd": 1.4,
-  "nws_off": 0.0
+  "nws_off": 0.0,
+  "obs_nwps": "prefer"
  },
  "WMPT": {
   "lid": "WNDV2",
