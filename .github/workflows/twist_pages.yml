@@ -1,0 +1,66 @@
+# Publishes the TWiST diagnostics pages (release twist-pages) to this repo's
+# GitHub Pages site, so VIMS webpages can embed them in an iframe: the release
+# download links are served as attachments and will not render in a frame.
+# Runs after every "TWiST monthly diagnostics" build and on manual dispatch,
+# so https://derekloftis.github.io/tidewatch_archive/twist_<station>.html is a
+# stable URL that each monthly build refreshes in place.
+name: TWiST pages site
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["TWiST monthly diagnostics"]
+    types: [completed]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: twist-pages-site
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download the published pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir site
+          gh release download twist-pages -R "$GITHUB_REPOSITORY" -D site -p 'twist_*.html' -p 'twist_all_stations.zip'
+          ls site | wc -l
+
+      - name: Write an index page
+        run: |
+          {
+            echo '<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
+            echo '<title>TWiST Diagnostics</title>'
+            echo '<body style="font:16px/1.6 system-ui;max-width:720px;margin:2rem auto;padding:0 16px">'
+            echo '<h1>TWiST &mdash; Tidewatch Forecast Diagnostics</h1>'
+            echo '<p>One self-contained page per station, rebuilt after each monthly build. <a href="twist_all_stations.zip">Download all stations (zip)</a>.</p><ul>'
+            for f in site/twist_*.html; do
+              b=$(basename "$f")
+              st=$(echo "$b" | sed 's/^twist_//; s/\.html$//' | tr 'a-z' 'A-Z' | tr '_' '-')
+              echo "<li><a href=\"$b\">$st</a></li>"
+            done
+            echo '</ul></body>'
+          } > site/index.html
+
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
