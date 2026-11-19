@@ -1,9 +1,82 @@
 {
+ "ALEV": {
+  "lid": "ALEV2",
+  "name": "Four Mile Run above Highway 1 at Alexandria",
+  "navd": 1.351,
+  "nws_off": 0.0,
+  "site": true
+ },
+ "ARPV": {
+  "lid": "ARPV2",
+  "name": "Appomattox River at Pocahontas",
+  "navd": 1.798,
+  "nws_off": 0.0,
+  "site": true
+ },
+ "AXTV": {
+  "lid": "AXTV2",
+  "name": "Potomac River at Alexandria",
+  "navd": 1.321,
+  "nws_off": 0.0,
+  "site": true
+ },
+ "BBIV": {
+  "lid": "BBIV2",
+  "name": "Long Creek Canal at Canal Road",
+  "navd": 1.43,
+  "nws_off": 0.0,
+  "site": true
+ },
  "BISH": {
   "lid": "BISM2",
   "name": "Chesapeake Bay at Bishops Head",
   "navd": 1.21,
   "nws_off": 0.0
+ },
+ "BPAD": {
+  "lid": "BPAD2",
+  "name": "Anacostia River at Buzzard Point in Washington DC",
+  "navd": 1.429,
+  "nws_off": 0.0,
+  "site": true
+ },
+ "BRDH": {
+  "name": "Back River at Dandy Haven Marina (VIMS gauge)",
+  "navd": 1.626,
+  "site": true
+ },
+ "CBBT": {
+  "lid": "CHBV2",
+  "name": "Chesapeake Bay at Chesapeake Bay Bridge Tunnel (IN MLLW)",
+  "navd": 1.92,
+  "nws_off": 0.0,
+  "site": true
+ },
+ "CCHV": {
+  "lid": "CCHV2",
+  "name": "Atlantic Coast near Anheuser Busch Coastal Res. Center",
+  "navd": 2.857,
+  "nws_off": 0.0,
+  "site": true
+ },
+ "CHIV": {
+  "lid": "CHIV2",
+  "name": "Chincoteague Channel near Chincoteague Bay Inlet",
+  "navd": 1.54,
+  "nws_off": 0.0,
+  "site": true
+ },
+ "CNRC": {
+  "name": "Accokeek Creek at Crow's Nest Research Center (GreenStream sensor)",
+  "navd": 0.691,
+  "site": true
+ },
+ "CRSM": {
+  "lid": "CRSM2",
+  "name": "Chesapeake Bay above Little Annemessex River at Crisfield MD",
+  "navd": 1.16,
+  "nws_off": 0.0,
+  "site": true
  },
  "DAHL": {
   "lid": "NCDV2",
@@ -11,6 +84,34 @@
   "navd": 1.04,
   "nws_off": 0.0,
   "obs_nwps": "prefer"
+ },
+ "DPCV": {
+  "lid": "DPCV2",
+  "name": "Deep Creek at Deep Creek Lock Park",
+  "navd": 1.657,
+  "nws_off": 0.0,
+  "site": true
+ },
+ "ELGV": {
+  "lid": "ELGV2",
+  "name": "Eastern Branch Elizabeth River at Grandy Village",
+  "navd": 1.79,
+  "nws_off": 0.0,
+  "site": true
+ },
+ "EZMV": {
+  "lid": "EZMV2",
+  "name": "Elizabeth River at the Midtown Tunnel",
+  "navd": 1.76,
+  "nws_off": 0.0,
+  "site": true
+ },
+ "FEDV": {
+  "lid": "FEDV2",
+  "name": "Rappahannock River at Fredericksburg",
+  "navd": 1.877,
+  "nws_off": 0.0,
+  "site": true
  },
  "GS01": {
   "name": "Chickahominy River at Mamanahunt",
@@ -20,17 +121,176 @@
   "name": "Pamunkey River at Lay Landing Rd",
   "navd": 1.651
  },
+ "GTND": {
+  "lid": "GTND2",
+  "name": "Potomac River at Georgetown / Wisconsin Ave",
+  "navd": 1.384,
+  "nws_off": 0.0,
+  "site": true
+ },
+ "HPPV": {
+  "lid": "HPPV2",
+  "name": "Elizabeth River at Hunts Pointe Park",
+  "navd": 1.76,
+  "nws_off": 0.0,
+  "site": true
+ },
+ "IHDM": {
+  "lid": "IHDM2",
+  "name": "Potomac River at Indian Head",
+  "navd": 0.954,
+  "nws_off": 0.0,
+  "site": true
+ },
+ "JLMV": {
+  "lid": "JLMV2",
+  "name": "James River at Leeward Marina",
+  "navd": 1.69,
+  "nws_off": 0.0,
+  "site": true
+ },
+ "JPHV": {
+  "lid": "JPHV2",
+  "name": "James River near Jordan Point below Hopewell",
+  "navd": 1.56,
+  "nws_off": 0.0,
+  "site": true
+ },
  "KIPT": {
   "lid": "KPTV2",
   "name": "Chesapeake Bay near Kiptopeke",
   "navd": 1.9,
   "nws_off": 0.0
  },
+ "KMNV": {
+  "lid": "KMNV2",
+  "name": "Knitting Mill Creek at North Colley",
+  "navd": 1.75,
+  "nws_off": 0.0,
+  "site": true
+ },
+ "LCEV": {
+  "lid": "LCEV2",
+  "name": "Little Creek at East Beach Marina",
+  "navd": 1.81,
+  "nws_off": 0.0,
+  "site": true
+ },
+ "LENM": {
+  "lid": "LENM2",
+  "name": "McIntosh Run near Leonardtown",
+  "navd": 0.997,
+  "nws_off": 0.0,
+  "site": true
+ },
  "LEWI": {
   "lid": "LWTV2",
   "name": "Potomac River at Lewisetta",
   "navd": 0.83,
   "nws_off": 0.0
+ },
+ "LSPV": {
+  "lid": "LSPV2",
+  "name": "Potomac River at Leesylvania State Park",
+  "navd": 0.912,
+  "nws_off": 0.0,
+  "site": true
+ },
+ "MNPT": {
+  "lid": "MNPV2",
+  "name": "Elizabeth River near Money Point (IN MLLW)",
+  "navd": 1.77,
+  "nws_off": 0.0,
+  "site": true
+ },
+ "NRSV": {
+  "lid": "NRSV2",
+  "name": "Nansemond River at Sleepy Hole Park",
+  "navd": 1.8,
+  "nws_off": 0.0,
+  "site": true
+ },
+ "NSWV": {
+  "name": "Nassawadox Creek near Bayford",
+  "navd": 1.302,
+  "site": true
+ },
+ "ONAV": {
+  "lid": "ONAV2",
+  "name": "South Branch Onancock Creek at Onancock",
+  "navd": 1.6,
+  "nws_off": 0.0,
+  "site": true
+ },
+ "PCCV": {
+  "lid": "PCCV2",
+  "name": "Elizabeth River at Scuffeltown Creek",
+  "navd": 1.84,
+  "nws_off": 0.0,
+  "site": true
+ },
+ "PRTV": {
+  "lid": "PRTV2",
+  "name": "Chesapeake Bay at Port Isobel/Tangier Island",
+  "navd": 1.3,
+  "nws_off": 0.0,
+  "site": true
+ },
+ "RAPV": {
+  "lid": "RAPV2",
+  "name": "Rappahannock River at Tappahannock",
+  "navd": 1.295,
+  "nws_off": 0.0,
+  "site": true
+ },
+ "RDIV": {
+  "lid": "RDIV2",
+  "name": "Atlantic Coast near Rudee Inlet",
+  "navd": 2.25,
+  "nws_off": 0.0,
+  "site": true
+ },
+ "RICV": {
+  "lid": "RICV2",
+  "name": "James River (VA) at Richmond Locks",
+  "navd": 1.675,
+  "nws_off": 0.0,
+  "site": true
+ },
+ "SAXV": {
+  "lid": "SAXV2",
+  "name": "Chesapeake Bay near Starling Creek at Saxis",
+  "navd": 1.53,
+  "nws_off": 0.0,
+  "site": true
+ },
+ "SGSM": {
+  "lid": "SGSM2",
+  "name": "St. George Creek at Straits Point",
+  "navd": 0.888,
+  "nws_off": 0.0,
+  "site": true
+ },
+ "SLIM": {
+  "lid": "SLIM2",
+  "name": "Patuxent River at Solomons Island",
+  "navd": 0.86,
+  "nws_off": 0.0,
+  "site": true
+ },
+ "SLRV": {
+  "lid": "SLRV2",
+  "name": "Salters Creek at 25th Street",
+  "navd": 1.68,
+  "nws_off": 0.0,
+  "site": true
+ },
+ "SMSV": {
+  "lid": "SMSV2",
+  "name": "Pagan River at Smithfield Station",
+  "navd": 1.536,
+  "nws_off": 0.0,
+  "site": true
  },
  "SWPT": {
   "lid": "SWPV2",
@@ -100,6 +360,11 @@
   "navd": 1.372,
   "nws_off": 0.0
  },
+ "USLN-X": {
+  "name": "Little Neck Creek at Pinewood Rd webcam (FloodVISION-AI ML water level)",
+  "navd": 1.372,
+  "site": true
+ },
  "USLR": {
   "lid": "LRBV2",
   "name": "Lake Rudee near Bells Rd in Virginia Beach (MLLW)",
@@ -157,6 +422,13 @@
   "name": "Thalia Creek at Route 58 in Thalia",
   "navd": 1.695
  },
+ "VIMS": {
+  "lid": "YKTV2",
+  "name": "Virginia Institute of Marine Science at Gloucester Point",
+  "navd": 1.53,
+  "nws_off": 0.0,
+  "site": true
+ },
  "WACH": {
   "lid": "WAHV2",
   "name": "Atlantic Coast at Wachapreague",
@@ -170,11 +442,46 @@
   "nws_off": 0.0,
   "obs_nwps": "prefer"
  },
+ "WCKV": {
+  "lid": "WCKV2",
+  "name": "Piankatank River above Wharf Creek near Hudgins VA",
+  "navd": 1.1,
+  "nws_off": 0.0,
+  "site": true
+ },
  "WMPT": {
   "lid": "WNDV2",
   "name": "Chesapeake Bay at Windmill Point",
   "navd": 1.18,
   "nws_off": 0.0
+ },
+ "WRDV": {
+  "lid": "WRDV2",
+  "name": "Warwick River at Denbigh Blvd",
+  "navd": 1.66,
+  "nws_off": 0.0,
+  "site": true
+ },
+ "WRSV": {
+  "lid": "WRSV2",
+  "name": "Warwick River at Shellabarger Dr",
+  "navd": 1.7,
+  "nws_off": 0.0,
+  "site": true
+ },
+ "WRVV": {
+  "lid": "WRVV2",
+  "name": "Ware River near Schley",
+  "navd": 1.64,
+  "nws_off": 0.0,
+  "site": true
+ },
+ "WSPV": {
+  "lid": "WSPV2",
+  "name": "York River near West Point",
+  "navd": 2.0,
+  "nws_off": 0.0,
+  "site": true
  },
  "YRCG": {
   "lid": "YKTV2",
