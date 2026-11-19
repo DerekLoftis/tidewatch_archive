@@ -106,6 +106,26 @@ def main():
             for p in loose:
                 os.rename(p, os.path.join(cd, os.path.basename(p)))
 
+    # ---- archived site builds (stand-in stations' forecasts + 3-day obs)
+    os.makedirs(os.path.join(W, "site"), exist_ok=True)
+    for tag_month in (month, nxt):
+        for aid, name in assets(REPO, f"site-{tag_month}"):
+            m2 = re.match(r"site_(.+)\.tar\.gz$", name)
+            if not m2:
+                continue
+            if tag_month == nxt and not re.match(rf"{nxt}-0[123]T", m2.group(1)):
+                continue
+            tar = os.path.join(W, "tars", name)
+            with open(tar, "wb") as f:
+                subprocess.run(["gh", "api", "-H", "Accept: application/octet-stream",
+                                f"/repos/{REPO}/releases/assets/{aid}"], stdout=f, check=True)
+            subprocess.run(["tar", "-xzf", tar, "-C", os.path.join(W, "site"), "--wildcards",
+                            "*_2018_f36_MLLW.csv", "--wildcards", "*_2018_3d_MLLW.csv"],
+                           capture_output=True)
+            os.remove(tar)
+    site_dirs = sorted(glob.glob(os.path.join(W, "site", "*")))
+    print(len(site_dirs), "site capture dirs")
+
     # ---- observations: StormSense archive when reachable
     obs_dirs = []
     for tag_month in (month, nxt):
@@ -166,6 +186,7 @@ def main():
            "--nwps-index", os.path.join(repo_root, "data", "index", "nwps"),
            "--obs", obs_dirs[0] if obs_dirs else os.path.join(W, "none"),
            "--tw30", *tw30,
+           "--site", *site_dirs,
            "--levels", os.path.join(HERE, "levels.json"),
            "--meta", os.path.join(HERE, "stations_meta.json"),
            "--assets", os.path.join(W, "assets.txt"),

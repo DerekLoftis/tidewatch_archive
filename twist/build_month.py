@@ -28,6 +28,7 @@ import glob
 import gzip
 import json
 import os
+import re
 from datetime import datetime, timedelta, timezone
 
 import numpy as np
@@ -78,6 +79,14 @@ def load_obs(st, a, start, end):
         d = pd.read_csv(f)
         parts.append(pd.Series(d.iloc[:, 1].values, index=pd.to_datetime(d.iloc[:, 0], utc=True)))
     ss = pd.concat(parts) if parts else pd.Series(dtype=float)
+    # stand-in stations: each site capture carries 3 days of the gauge's own obs
+    for dir_ in a.site:
+        for f in glob.glob(os.path.join(dir_, f"{st}_2018_3d_MLLW.csv")):
+            d = pd.read_csv(f)
+            t2 = pd.Series(d["feet"].values, index=pd.to_datetime(d["time"], utc=True))
+            parts.append(t2)
+    ss = pd.concat(parts) if parts else ss
+    ss = ss[~ss.index.duplicated()]
     tw = pd.Series(dtype=float)
     for dir_ in a.tw30:
         for f in glob.glob(os.path.join(dir_, f"{st}_2018_30d_MLLW.csv")):
@@ -161,6 +170,34 @@ def tidewatch_runs(st, a, start, end):
         r["extra"] = {"tide": d["pa30"].to_numpy(float), "anom": d["anom"].to_numpy(float)}
         out.append(r)
     return out
+
+
+def site_runs(st, a, start, end):
+    """One run per archived site build (stand-in stations rebuilt by
+    tidewatch_forecastmodel each cycle): the capture dir name is the cycle,
+    e.g. 2026-11-19T18Z, and every capture is a fresh build."""
+    out = []
+    for d in a.site:
+        cyc = os.path.basename(d.rstrip("/"))
+        p = os.path.join(d, f"{st}_2018_f36_MLLW.csv")
+        m = re.match(r"(\d{4}-\d{2}-\d{2})T(\d{2})(\d{2})?Z$", cyc)
+        if not m or not os.path.exists(p):
+            continue
+        iss = T(f"{m.group(1)}T{m.group(2)}:{m.group(3) or '00'}:00Z")
+        if not (start <= iss < end):
+            continue
+        month_tag = iss.strftime("%Y-%m")
+        out.append(dict(model="TW", slot=slot_of(iss), issued=iss, path=p, cycle=cyc, stale=False,
+                        fetches=[], download=f"https://github.com/DerekLoftis/tidewatch_archive/releases/"
+                        f"download/site-{month_tag}/site_{cyc}.tar.gz"))
+    runs = []
+    for r in sorted(out, key=lambda r: r["issued"]):
+        d = pd.read_csv(r["path"])
+        r["t"] = pd.to_datetime(d["time"], utc=True)
+        r["v"] = d["px30"].to_numpy(float)
+        r["extra"] = {"tide": d["pa30"].to_numpy(float), "anom": d["anom"].to_numpy(float)}
+        runs.append(r)
+    return runs
 
 
 def nws_fetches(lid, dirs):
@@ -359,6 +396,7 @@ def main():
     ap.add_argument("--nwps-index", nargs="*", default=[], help="nwps index folders, for download links")
     ap.add_argument("--obs", default="")
     ap.add_argument("--tw30", nargs="*", default=[])
+    ap.add_argument("--site", nargs="*", default=[], help="archived site-build cycle dirs (stand-in station forecasts + 3d obs)")
     ap.add_argument("--fore72", nargs="*", default=[])
     ap.add_argument("--levels", default="")
     ap.add_argument("--meta", default="", help="JSON {ST: {name, navd}} overriding NAMES/NAVD_ABOVE_MLLW")
@@ -381,8 +419,11 @@ def main():
         # 31-day lookback so m30 at each issuance has a full month of observations
         obs = load_obs(st, a, start - timedelta(days=31), end + timedelta(days=4))
         runs = []
-        if a.tw and "TW" in models:
-            runs += tidewatch_runs(st, a, start, end)
+        if "TW" in models:
+            if meta.get(st, {}).get("site"):  # stand-in station: forecasts from archived site builds
+                runs += site_runs(st, a, start, end)
+            elif a.tw:
+                runs += tidewatch_runs(st, a, start, end)
         lid = NWS_LID.get(st) or meta.get(st, {}).get("lid")
         off = meta.get(st, {}).get("nws_off")
         if lid and off is not None and lid not in NWS_TO_MLLW:
@@ -411,7 +452,7 @@ def main():
             fetches = r.get("fetches", [])
             if r["model"] == "NWS":
                 fetches = sorted(nwsf.get(r["issued"].strftime("%Y-%m-%dT%H:%M:%SZ"), []))
-            r["download"] = next((u for u in (asset_for(assets, f) for f in fetches) if u), None)
+            r["download"] = r.get("download") or next((u for u in (asset_for(assets, f) for f in fetches) if u), None)
             r["d24"] = back_mean(obs, r["issued"], 24)
             r["m30"] = back_mean(obs, r["issued"], 24 * 30)
         # observations on a regular 6-minute grid over the month (+ margins)
