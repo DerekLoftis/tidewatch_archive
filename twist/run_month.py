@@ -127,17 +127,22 @@ def main():
     else:
         print("observations: Tidewatch 30d records only (no StormSense access)")
 
-    # ---- previously built months, so pages accumulate: committed seeds
-    # (months a workflow run cannot rebuild, e.g. Sept 2026 from the IEM HML
-    # backfill), then release twist-data, which wins where both have a month
+    # ---- previously built months, so pages accumulate: committed seeds win
+    # over release twist-data for the months they carry - they are curated
+    # builds a workflow run cannot reproduce (Sept 2026 needs the offline IEM
+    # HML conversion; Oct 2026 used the StormSense gauge observations).
+    # Delete a month's seed to let the release's tarball take over again.
     diag = os.path.join(W, "diag")
     os.makedirs(diag, exist_ok=True)
+    seeded = set()
     for tar in sorted(glob.glob(os.path.join(HERE, "data_seed", "twist_data_*.tar.gz"))):
-        if f"twist_data_{month}.tar.gz" != os.path.basename(tar):
+        mm = re.match(r"twist_data_(\d{4}-\d{2})\.tar\.gz$", os.path.basename(tar))
+        if mm and mm.group(1) != month:
             subprocess.run(["tar", "-xzf", tar, "-C", diag], check=True)
+            seeded.add(mm.group(1))
     for aid, name in assets(REPO, "twist-data"):
         mm = re.match(r"twist_data_(\d{4}-\d{2})\.tar\.gz$", name)
-        if not mm or mm.group(1) == month:
+        if not mm or mm.group(1) == month or mm.group(1) in seeded:
             continue
         tar = os.path.join(W, "tars", name)
         with open(tar, "wb") as f:
