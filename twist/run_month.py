@@ -127,9 +127,14 @@ def main():
     else:
         print("observations: Tidewatch 30d records only (no StormSense access)")
 
-    # ---- previously built months (release twist-data), so pages accumulate
+    # ---- previously built months, so pages accumulate: committed seeds
+    # (months a workflow run cannot rebuild, e.g. Sept 2026 from the IEM HML
+    # backfill), then release twist-data, which wins where both have a month
     diag = os.path.join(W, "diag")
     os.makedirs(diag, exist_ok=True)
+    for tar in sorted(glob.glob(os.path.join(HERE, "data_seed", "twist_data_*.tar.gz"))):
+        if f"twist_data_{month}.tar.gz" != os.path.basename(tar):
+            subprocess.run(["tar", "-xzf", tar, "-C", diag], check=True)
     for aid, name in assets(REPO, "twist-data"):
         mm = re.match(r"twist_data_(\d{4}-\d{2})\.tar\.gz$", name)
         if not mm or mm.group(1) == month:

@@ -119,8 +119,15 @@ def tidewatch_runs(st, a, start, end):
     for d in a.tw_index:
         for f in sorted(glob.glob(os.path.join(d, "*.csv"))):
             for x in csv.DictReader(open(f)):
-                if x["station"] == st and x["file"].endswith("_MLLW.csv") and x["status"] == "ok" and x["last_modified"]:
-                    idx.append((x["cycle"], T(x["fetched_utc"]), ceil_hour(T(x["last_modified"])), x["sha256"]))
+                if x["station"] == st and x["file"].endswith("_MLLW.csv") and x["status"] == "ok":
+                    if x["last_modified"]:
+                        run = ceil_hour(T(x["last_modified"]))
+                    elif x.get("first_time"):  # Sept 2026 backfill rows carry no Last-Modified;
+                        ft = T(x["first_time"])  # the f36 series starts within its run's 6-h slot
+                        run = ft.replace(minute=0, second=0, microsecond=0) - timedelta(hours=ft.hour % 6)
+                    else:
+                        continue
+                    idx.append((x["cycle"], T(x["fetched_utc"]), run, x["sha256"]))
     files = {}
     for p in glob.glob(os.path.join(a.tw, "**", f"{st}_2018_f36_MLLW.csv"), recursive=True):
         files[os.path.basename(os.path.dirname(p))] = p
