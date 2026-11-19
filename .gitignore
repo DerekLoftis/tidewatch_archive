@@ -8,3 +8,4 @@ __pycache__/
 .venv/
 packs/
 *.tar.gz
+!twist/data_seed/*.tar.gz
