@@ -354,6 +354,13 @@
   "name": "London Bridge Creek at Route 58 in VA Beach",
   "navd": 1.654
  },
+ "USLI": {
+  "lid": "LHNV2",
+  "name": "Lynnhaven River near Lynnhaven Inlet",
+  "navd": 1.65,
+  "nws_off": 0.0,
+  "site": true
+ },
  "USLN": {
   "lid": "LTCV2",
   "name": "Little Neck Creek at Pinewood Rd in Virginia Beach (MLLW)",
