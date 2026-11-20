@@ -112,6 +112,12 @@
   "minor": 6.65,
   "moderate": 7.65
  },
+ "USLI": {
+  "action": 4.0,
+  "major": 5.5,
+  "minor": 4.5,
+  "moderate": 5.0
+ },
  "USLN": {
   "action": 3.25,
   "major": 6.0,
